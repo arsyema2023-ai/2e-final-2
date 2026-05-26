@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedStudy — Atlas Neuro, Histologi & Fisiologi Sensorik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        bg: '#030C14',
+        surface: '#07101C',
+        surface2: '#0A1929',
+        cyan: '#06B6D4',
+        'cyan-dim': '#3A5A73',
+        'cyan-bright': '#7BA3C0',
+        text: '#E0F2FE',
+        'text-dim': '#7BA3C0',
+        success: '#10B981',
+        warning: '#F59E0B',
+        danger: '#EF4444',
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+        display: ['Playfair Display', 'serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { border-color: rgba(6,182,212,0.15); }
+  body {
+    background: #030C14;
+    color: #E0F2FE;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .glass {
+    background: rgba(6,182,212,0.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(6,182,212,0.15);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 1px rgba(6,182,212,0.1);
+  }
+  .glass:hover {
+    background: rgba(6,182,212,0.14);
+    border-color: rgba(6,182,212,0.3);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 1px rgba(6,182,212,0.2);
+  }
+  .glass-strong {
+    background: rgba(7,16,28,0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(6,182,212,0.2);
+  }
+  .nav-glow {
+    box-shadow: 0 2px 8px rgba(6,182,212,0.3);
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%);
+    background-size: 200% 100%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .shimmer:hover::after {
+    opacity: 1;
+    animation: shimmerMove 0.8s ease-out;
+  }
+  @keyframes shimmerMove {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #06B6D4, #22d3ee);
+    box-shadow: 0 0 8px rgba(6,182,212,0.4);
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(6,182,212,0.3); border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(6,182,212,0.5); }
+  .flip-card { perspective: 1000px; }
+  .flip-card-inner {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+  }
+  .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .flip-card-back { transform: rotateY(180deg); }
+  .page { display: none; animation: fadeIn 0.25s ease-out; }
+  .page.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #06B6D4, #0891b2);
+    color: #030C14;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(6,182,212,0.4);
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    background: rgba(6,182,212,0.1);
+    border: 1px solid rgba(6,182,212,0.3);
+    color: #E0F2FE;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover {
+    background: rgba(6,182,212,0.2);
+    border-color: rgba(6,182,212,0.5);
+  }
+  .option-btn {
+    transition: all 0.15s;
+    border: 1px solid rgba(6,182,212,0.2);
+  }
+  .option-btn:hover {
+    border-color: rgba(6,182,212,0.5);
+    background: rgba(6,182,212,0.1);
+  }
+  .option-btn.correct {
+    border-color: #10B981;
+    background: rgba(16,185,129,0.15);
+    color: #10B981;
+  }
+  .option-btn.wrong {
+    border-color: #EF4444;
+    background: rgba(239,68,68,0.15);
+    color: #EF4444;
+  }
+  .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+  .explanation-box {
+    background: rgba(6,182,212,0.08);
+    border-left: 3px solid #06B6D4;
+  }
+  .streak-flame {
+    animation: flame 1.5s ease-in-out infinite;
+  }
+  @keyframes flame {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+  .timer-pulse {
+    animation: timerPulse 1s ease-in-out infinite;
+  }
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  input::placeholder, textarea::placeholder {
+    color: #3A5A73;
+  }
+  .tab-active {
+    color: #E0F2FE;
+    border-bottom: 2px solid #06B6D4;
+    box-shadow: 0 2px 8px rgba(6,182,212,0.3);
+  }
+  .tab-inactive {
+    color: #7BA3C0;
+    border-bottom: 2px solid transparent;
+  }
+  .tab-inactive:hover {
+    color: #E0F2FE;
+    border-bottom-color: rgba(6,182,212,0.3);
+  }
+  .nav-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Top Navigation -->
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6 lg:px-12" style="background:rgba(3,12,20,0.85); backdrop-filter:blur(16px); border-bottom:1px solid rgba(6,182,212,0.15);">
+  <button onclick="navigate('dashboard')" class="flex flex-col items-start text-left">
+    <span class="text-text font-semibold text-lg leading-tight tracking-tight">MedStudy</span>
+    <span class="text-cyan-dim text-[11px] font-medium tracking-[0.08em]">FKIK UNJA</span>
+  </button>
+  <div class="hidden md:flex items-center gap-6">
+    <button onclick="navigate('dashboard')" id="nav-dashboard" class="relative text-[13px] font-medium py-2 transition-colors duration-200 text-text">
+      Beranda<span class="nav-underline absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-cyan nav-glow"></span>
+    </button>
+    <button onclick="navigate('materials')" id="nav-materials" class="relative text-[13px] font-medium py-2 transition-colors duration-200 text-text-dim hover:text-text">
+      Materi<span class="nav-underline absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-cyan opacity-0 hover:opacity-100 transition-opacity"></span>
+    </button>
+    <button onclick="navigate('flashcards')" id="nav-flashcards" class="relative text-[13px] font-medium py-2 transition-colors duration-200 text-text-dim hover:text-text">
+      Flashcard<span class="nav-underline absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-cyan opacity-0 hover:opacity-100 transition-opacity"></span>
+    </button>
+    <button onclick="navigate('quiz')" id="nav-quiz" class="relative text-[13px] font-medium py-2 transition-colors duration-200 text-text-dim hover:text-text">
+      Kuis<span class="nav-underline absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-cyan opacity-0 hover:opacity-100 transition-opacity"></span>
+    </button>
+    <button onclick="navigate('exam')" id="nav-exam" class="relative text-[13px] font-medium py-2 transition-colors duration-200 text-text-dim hover:text-text">
+      Ujian<span class="nav-underline absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-cyan opacity-0 hover:opacity-100 transition-opacity"></span>
+    </button>
+  </div>
+  <div class="flex items-center gap-2">
+    <button onclick="navigate('settings')" class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 bg-cyan/10 border border-cyan/20 hover:border-cyan">
+      <svg class="w-[18px] h-[18px] text-text-dim hover:text-cyan transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m4.22-10.22l4.24-4.24M6.34 17.66l-4.24 4.24M23 12h-6m-6 0H1m20.24 4.24l-4.24-4.24M6.34 6.34L2.1 2.1"/></svg>
+    </button>
+    <button onclick="navigate('help')" class="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 bg-cyan/10 border border-cyan/20 hover:border-cyan">
+      <svg class="w-[18px] h-[18px] text-text-dim hover:text-cyan transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Bottom Nav -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 z-50 h-14 flex items-center justify-around px-2" style="background:rgba(3,12,20,0.95); backdrop-filter:blur(16px); border-top:1px solid rgba(6,182,212,0.15);">
+  <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-0.5 text-[10px] text-text-dim hover:text-cyan transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Beranda
+  </button>
+  <button onclick="navigate('materials')" class="flex flex-col items-center gap-0.5 text-[10px] text-text-dim hover:text-cyan transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Materi
+  </button>
+  <button onclick="navigate('flashcards')" class="flex flex-col items-center gap-0.5 text-[10px] text-text-dim hover:text-cyan transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    Flashcard
+  </button>
+  <button onclick="navigate('quiz')" class="flex flex-col items-center gap-0.5 text-[10px] text-text-dim hover:text-cyan transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Kuis
+  </button>
+  <button onclick="navigate('exam')" class="flex flex-col items-center gap-0.5 text-[10px] text-text-dim hover:text-cyan transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Ujian
+  </button>
+</div>
+
+<main class="pt-16 pb-16 md:pb-0 min-h-screen">
+
+<!-- DASHBOARD -->
+<section id="page-dashboard" class="page active px-6 lg:px-12 py-8 max-w-7xl mx-auto">
+  <div class="mb-8">
+    <h1 class="font-display text-3xl md:text-4xl text-text mb-2">Selamat Datang Kembali</h1>
+    <p class="text-text-dim text-sm">Semester 2 • FKIK UNJA • Atlas Neuroanatomi, Histologi & Fisiologi Sensorik</p>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="glass rounded-xl p-5 relative overflow-hidden shimmer">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/></svg>
+        </div>
+        <span class="text-text-dim text-xs font-medium">Streak Belajar</span>
+      </div>
+      <div class="text-2xl font-bold text-text" id="dash-streak">5 hari</div>
+    </div>
+    <div class="glass rounded-xl p-5 relative overflow-hidden shimmer">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-success/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <span class="text-text-dim text-xs font-medium">Jawaban Benar</span>
+      </div>
+      <div class="text-2xl font-bold text-text" id="dash-correct">24 soal</div>
+    </div>
+    <div class="glass rounded-xl p-5 relative overflow-hidden shimmer">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-warning/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-warning" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <span class="text-text-dim text-xs font-medium">Waktu Fokus</span>
+      </div>
+      <div class="text-2xl font-bold text-text" id="dash-focus">150 menit</div>
+    </div>
+    <div class="glass rounded-xl p-5 relative overflow-hidden shimmer cursor-pointer" onclick="navigate('materials')">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-cyan/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <span class="text-text-dim text-xs font-medium">Progress Materi</span>
+      </div>
+      <div class="text-2xl font-bold text-text" id="dash-progress">0/12</div>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="glass rounded-xl p-6">
+        <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Aksi Cepat
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button onclick="navigate('materials')" class="glass rounded-lg p-4 text-center hover:border-cyan/50 transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-cyan/20 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <span class="text-xs text-text-dim">Baca Materi</span>
+          </button>
+          <button onclick="navigate('quiz')" class="glass rounded-lg p-4 text-center hover:border-cyan/50 transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </div>
+            <span class="text-xs text-text-dim">Kerjakan Kuis</span>
+          </button>
+          <button onclick="navigate('flashcards')" class="glass rounded-lg p-4 text-center hover:border-cyan/50 transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <span class="text-xs text-text-dim">Flashcard</span>
+          </button>
+          <button onclick="startPomodoro()" class="glass rounded-lg p-4 text-center hover:border-cyan/50 transition-all group">
+            <div class="w-10 h-10 rounded-lg bg-danger/20 flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 text-danger" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span class="text-xs text-text-dim">Pomodoro</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-6">
+        <h2 class="text-lg font-semibold text-text mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Aktivitas Terbaru
+        </h2>
+        <div id="activity-list" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div class="glass rounded-xl p-6 text-center">
+        <h3 class="text-sm font-medium text-text-dim mb-3">Pomodoro Timer</h3>
+        <div class="text-4xl font-mono font-bold text-cyan mb-4 timer-pulse" id="pomodoro-display">25:00</div>
+        <div class="flex gap-2 justify-center">
+          <button onclick="togglePomodoro()" id="pomodoro-btn" class="btn-primary px-4 py-2 rounded-lg text-sm">Mulai</button>
+          <button onclick="resetPomodoro()" class="px-4 py-2 rounded-lg text-sm border border-cyan/30 text-text-dim hover:bg-cyan/10 transition-colors">Reset</button>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-6">
+        <h3 class="text-sm font-medium text-text-dim mb-4">Progress Materi</h3>
+        <div id="progress-list" class="space-y-3"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIALS -->
+<section id="page-materials" class="page px-6 lg:px-12 py-8 max-w-7xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Daftar Materi</h1>
+    <p class="text-text-dim text-sm">Pilih materi untuk memulai pembelajaran</p>
+  </div>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="materials-grid"></div>
+</section>
+
+<!-- MATERIAL DETAIL -->
+<section id="page-material-detail" class="page px-6 lg:px-12 py-8 max-w-5xl mx-auto">
+  <button onclick="navigate('materials')" class="flex items-center gap-2 text-text-dim hover:text-cyan transition-colors mb-6 text-sm">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
+    Kembali ke Materi
+  </button>
+  <div id="material-content"></div>
+  <div class="glass rounded-xl p-6 mt-6">
+    <h3 class="text-lg font-semibold text-text mb-3 flex items-center gap-2">
+      <svg class="w-5 h-5 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Catatan Pribadi
+    </h3>
+    <textarea id="note-textarea" class="w-full h-32 bg-surface rounded-lg border border-cyan/20 p-4 text-sm text-text resize-none focus:border-cyan focus:outline-none transition-colors" placeholder="Tulis catatanmu di sini..."></textarea>
+    <div class="flex justify-end mt-3">
+      <button onclick="saveNote()" class="btn-primary px-5 py-2 rounded-lg text-sm">Simpan Catatan</button>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ LIST -->
+<section id="page-quiz" class="page px-6 lg:px-12 py-8 max-w-5xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Kuis Interaktif</h1>
+    <p class="text-text-dim text-sm">Uji pemahamanmu dengan kuis per materi. Setiap soal dilengkapi penjelasan.</p>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4" id="quiz-list"></div>
+</section>
+
+<!-- QUIZ RUN -->
+<section id="page-quiz-run" class="page px-6 lg:px-12 py-8 max-w-3xl mx-auto">
+  <div class="glass rounded-xl p-6 md:p-8">
+    <div class="flex items-center justify-between mb-6">
+      <button onclick="navigate('quiz')" class="flex items-center gap-2 text-text-dim hover:text-cyan transition-colors text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
+        Kembali
+      </button>
+      <div class="text-sm text-text-dim">Soal <span id="quiz-current" class="text-cyan font-semibold">1</span> / <span id="quiz-total">10</span></div>
+    </div>
+    <div class="w-full h-1 bg-surface rounded-full mb-6 overflow-hidden">
+      <div id="quiz-progress-bar" class="h-full progress-bar rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+    <div id="quiz-question-container"></div>
+    <div id="quiz-explanation" class="hidden mt-4 p-4 rounded-lg explanation-box text-sm text-text-dim"></div>
+    <div class="flex items-center justify-between mt-6 pt-4 border-t border-cyan/10">
+      <button onclick="prevQuizQuestion()" id="quiz-prev-btn" class="nav-btn btn-secondary opacity-50 cursor-not-allowed" disabled>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        Sebelumnya
+      </button>
+      <button onclick="nextQuizQuestion()" id="quiz-next-btn" class="nav-btn btn-primary opacity-50 cursor-not-allowed" disabled>
+        Selanjutnya
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button onclick="finishQuizEarly()" id="quiz-finish-btn" class="nav-btn btn-primary hidden">
+        Selesai
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ RESULT -->
+<section id="page-quiz-result" class="page px-6 lg:px-12 py-8 max-w-2xl mx-auto text-center">
+  <div class="glass rounded-xl p-8 md:p-12">
+    <div class="w-20 h-20 rounded-full bg-cyan/20 flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <h2 class="font-display text-3xl text-text mb-2">Kuis Selesai!</h2>
+    <p class="text-text-dim mb-6">Berikut hasil pengerjaan kuismu</p>
+    <div class="text-5xl font-bold text-cyan mb-2" id="result-score">0/0</div>
+    <div class="text-lg text-text-dim mb-8" id="result-percentage">0% benar</div>
+    <div class="flex gap-3 justify-center">
+      <button onclick="navigate('quiz')" class="px-6 py-2.5 rounded-lg border border-cyan/30 text-text hover:bg-cyan/10 transition-colors">Kuis Lain</button>
+      <button onclick="retryQuiz()" class="btn-primary px-6 py-2.5 rounded-lg">Ulangi Kuis</button>
+    </div>
+  </div>
+</section>
+
+<!-- EXAM -->
+<section id="page-exam" class="page px-6 lg:px-12 py-8 max-w-5xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Simulasi Ujian</h1>
+    <p class="text-text-dim text-sm">Latihan ujian komprehensif dengan timer dan penjelasan otomatis per soal</p>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4" id="exam-list"></div>
+</section>
+
+<!-- EXAM RUN -->
+<section id="page-exam-run" class="page px-6 lg:px-12 py-8 max-w-4xl mx-auto">
+  <div class="glass rounded-xl p-6 md:p-8">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <button onclick="navigate('exam')" class="flex items-center gap-2 text-text-dim hover:text-cyan transition-colors text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5m7 7l-7-7 7-7"/></svg>
+        Kembali
+      </button>
+      <div class="flex items-center gap-4">
+        <div class="text-sm text-text-dim">Sisa Waktu: <span id="exam-timer" class="text-cyan font-mono font-semibold">60:00</span></div>
+        <div class="text-sm text-text-dim">Soal <span id="exam-current" class="text-cyan font-semibold">1</span> / <span id="exam-total">30</span></div>
+      </div>
+    </div>
+    <div class="w-full h-1 bg-surface rounded-full mb-6 overflow-hidden">
+      <div id="exam-progress-bar" class="h-full progress-bar rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+    <div id="exam-question-container"></div>
+    <div id="exam-explanation" class="hidden mt-4 p-4 rounded-lg explanation-box text-sm text-text-dim"></div>
+    <div class="flex items-center justify-between mt-6 pt-4 border-t border-cyan/10">
+      <button onclick="prevExamQuestion()" id="exam-prev-btn" class="nav-btn btn-secondary opacity-50 cursor-not-allowed" disabled>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        Sebelumnya
+      </button>
+      <button onclick="nextExamQuestion()" id="exam-next-btn" class="nav-btn btn-primary opacity-50 cursor-not-allowed" disabled>
+        Selanjutnya
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button onclick="finishExamEarly()" id="exam-finish-btn" class="nav-btn btn-primary hidden">
+        Selesai
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- EXAM RESULT -->
+<section id="page-exam-result" class="page px-6 lg:px-12 py-8 max-w-2xl mx-auto text-center">
+  <div class="glass rounded-xl p-8 md:p-12">
+    <div class="w-20 h-20 rounded-full bg-cyan/20 flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </div>
+    <h2 class="font-display text-3xl text-text mb-2">Ujian Selesai!</h2>
+    <p class="text-text-dim mb-6">Hasil simulasi ujianmu</p>
+    <div class="text-5xl font-bold text-cyan mb-2" id="exam-result-score">0/0</div>
+    <div class="text-lg text-text-dim mb-2" id="exam-result-percentage">0% benar</div>
+    <div class="text-sm text-text-dim mb-8" id="exam-result-time">Waktu: 0 menit</div>
+    <div class="flex gap-3 justify-center">
+      <button onclick="navigate('exam')" class="px-6 py-2.5 rounded-lg border border-cyan/30 text-text hover:bg-cyan/10 transition-colors">Ujian Lain</button>
+      <button onclick="retryExam()" class="btn-primary px-6 py-2.5 rounded-lg">Ulangi Ujian</button>
+    </div>
+  </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section id="page-flashcards" class="page px-6 lg:px-12 py-8 max-w-5xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Flashcard</h1>
+    <p class="text-text-dim text-sm">Pelajari konsep penting dengan kartu interaktif</p>
+  </div>
+  <div class="mb-6 flex gap-2 flex-wrap" id="flashcard-filters">
+    <button onclick="filterFlashcards('all')" class="px-4 py-1.5 rounded-full text-sm border border-cyan/30 bg-cyan/20 text-text">Semua</button>
+    <button onclick="filterFlashcards('neuro')" class="px-4 py-1.5 rounded-full text-sm border border-cyan/20 text-text-dim hover:bg-cyan/10 transition-colors">Neuroanatomi</button>
+    <button onclick="filterFlashcards('histologi')" class="px-4 py-1.5 rounded-full text-sm border border-cyan/20 text-text-dim hover:bg-cyan/10 transition-colors">Histologi</button>
+    <button onclick="filterFlashcards('fisiologi')" class="px-4 py-1.5 rounded-full text-sm border border-cyan/20 text-text-dim hover:bg-cyan/10 transition-colors">Fisiologi</button>
+  </div>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="flashcards-grid"></div>
+</section>
+
+<!-- SETTINGS -->
+<section id="page-settings" class="page px-6 lg:px-12 py-8 max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Pengaturan</h1>
+    <p class="text-text-dim text-sm">Kelola data dan preferensi aplikasi</p>
+  </div>
+  <div class="glass rounded-xl p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-text font-medium">Reset Data</h3>
+        <p class="text-text-dim text-sm">Hapus semua progress, catatan, dan riwayat</p>
+      </div>
+      <button onclick="resetData()" class="px-4 py-2 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 transition-colors text-sm">Reset</button>
+    </div>
+    <div class="h-px bg-cyan/10"></div>
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-text font-medium">Tentang MedStudy</h3>
+        <p class="text-text-dim text-sm">Versi 2.0 • FKIK UNJA</p>
+      </div>
+    </div>
+    <div class="h-px bg-cyan/10"></div>
+    <div>
+      <h3 class="text-text font-medium mb-2">Statistik Data</h3>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="glass rounded-lg p-3">
+          <div class="text-text-dim text-xs">Total Materi</div>
+          <div class="text-text font-semibold" id="settings-materials">12</div>
+        </div>
+        <div class="glass rounded-lg p-3">
+          <div class="text-text-dim text-xs">Total Kuis</div>
+          <div class="text-text font-semibold" id="settings-quizzes">10</div>
+        </div>
+        <div class="glass rounded-lg p-3">
+          <div class="text-text-dim text-xs">Total Flashcard</div>
+          <div class="text-text font-semibold" id="settings-flashcount">0</div>
+        </div>
+        <div class="glass rounded-lg p-3">
+          <div class="text-text-dim text-xs">Total Soal Ujian</div>
+          <div class="text-text font-semibold">90</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HELP -->
+<section id="page-help" class="page px-6 lg:px-12 py-8 max-w-3xl mx-auto">
+  <div class="mb-6">
+    <h1 class="font-display text-3xl text-text mb-2">Panduan Pengguna</h1>
+    <p class="text-text-dim text-sm">Cara menggunakan MedStudy</p>
+  </div>
+  <div class="glass rounded-xl p-6 space-y-4">
+    <div>
+      <h3 class="text-text font-medium mb-1">📖 Materi</h3>
+      <p class="text-text-dim text-sm">Baca materi pembelajaran lengkap dengan gambaran konsep. Setiap materi memiliki catatan pribadi yang tersimpan otomatis.</p>
+    </div>
+    <div class="h-px bg-cyan/10"></div>
+    <div>
+      <h3 class="text-text font-medium mb-1">📝 Kuis</h3>
+      <p class="text-text-dim text-sm">Uji pemahaman dengan soal pilihan ganda. Setiap jawaban dilengkapi penjelasan detail. Gunakan tombol Sebelumnya/Selanjutnya untuk navigasi.</p>
+    </div>
+    <div class="h-px bg-cyan/10"></div>
+    <div>
+      <h3 class="text-text font-medium mb-1">🎴 Flashcard</h3>
+      <p class="text-text-dim text-sm">Klik kartu untuk membaliknya. Gunakan untuk menghafal definisi dan konsep penting.</p>
+    </div>
+    <div class="h-px bg-cyan/10"></div>
+    <div>
+      <h3 class="text-text font-medium mb-1">⏱️ Pomodoro</h3>
+      <p class="text-text-dim text-sm">Gunakan timer 25 menit untuk sesi fokus belajar. Waktu fokus akan tercatat di statistik.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===================== DATA =====================
+
+const materialsData = [
+  {
+    id: "neuro-1",
+    title: "Neuroanatomi 1 — SSP & Neuron",
+    category: "neuro",
+    description: "Anatomi SSP, struktur neuron, neuroglia, cerebrum, cerebellum, medulla spinalis, dan jaras saraf.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Sistem Saraf Pusat (SSP)</h2>
+      <p class="text-text-dim leading-relaxed mb-4">SSP terdiri dari otak dan sumsum tulang belakang, dilindungi oleh tulang, meninges, dan cairan serebrospinal (CSF). Secara anatomi terbagi menjadi CNS dan PNS.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Neuron</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Unit struktural dan fungsional sistem saraf. Terdiri dari:</p>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Badan sel (Soma):</strong> Pusat metabolisme dan genetik neuron.</li>
+        <li><strong class="text-text">Dendrit:</strong> Menerima informasi sinaptik masuk.</li>
+        <li><strong class="text-text">Akson:</strong> Menghantarkan impuls menjauhi badan sel, ditutupi axolemma.</li>
+        <li><strong class="text-text">Sinapsis:</strong> Komunikasi antar neuron dari terminal akson ke neuron penerima.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Neuroglia</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Astrosit:</strong> Mendukung dan memberi nutrisi neuron.</li>
+        <li><strong class="text-text">Oligodendrosit:</strong> Membentuk mielin di SSP.</li>
+        <li><strong class="text-text">Mikroglia:</strong> Fagositosis di SSP.</li>
+        <li><strong class="text-text">Sel Schwann:</strong> Membentuk mielin di SST.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Cerebrum (Telensefalon)</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Bagian terbesar otak, terdiri dari dua hemisfer dengan korteks serebral (gray matter) dan white matter (serat mielin). Memiliki lobus: frontalis, parietalis, oksipitalis, temporalis, dan insula.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">4. Thalamus & Hipotalamus</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Thalamus adalah stasiun relay sensorik terbesar. Hipotalamus mengatur suhu, denyut jantung, tekanan darah, keseimbangan air, neurosekresi, dan asupan gizi.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">5. Batang Otak & Cerebellum</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Batang otak terdiri dari mesensephalon, pons, dan medulla oblongata. Cerebellum mengatur keseimbangan, koordinasi gerakan, dan tonus otot. Terhubung ke batang otak oleh 3 pedunculus serebellar.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">6. Medulla Spinalis</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Materi abu-abu berbentuk H (tanduk anterior & posterior) dan materi putih (kolom anterior, lateral, posterior). Terdapat 31 pasang saraf spinal: 8 servikal, 12 torakal, 5 lumbal, 5 sakral, 1 koksigcal.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">7. Jaras Sensorik & Motorik</h3>
+      <p class="text-text-dim leading-relaxed mb-4"><strong>Ascending:</strong> Spinothalamik (nyeri, suhu), dorsal kolom (propriosepsi, vibrasi). <strong>Descending:</strong> Kortikospinal (gerakan volunter), ekstrapiramidal (tonus, postur).</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">8. Sirkulasi & CSF</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Otak disuplai oleh arteri karotis interna (80%) dan vertebralis → basilaris → sirkulus Willis. CSF diproduksi di plexus koroidus ventrikel lateral, mengalir ke ventrikel III → serebral akuaduk → ventrikel IV → ruang subaraknoid → granulasi arachnoid → sinus sagitalis superior.</p>
+    `
+  },
+  {
+    id: "neuro-2",
+    title: "Neuroanatomi 2 — Meninges & Vaskular",
+    category: "neuro",
+    description: "Meninges, cairan serebrospinal, sirkulasi darah otak, dan drainase vena.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Meninges</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Tiga lapis pelindung SSP:</p>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Dura mater:</strong> Lapisan terluar, tebal, fibrosa. Memiliki lapisan periosteal dan meningeal.</li>
+        <li><strong class="text-text">Arachnoidea:</strong> Lapisan tengah, avaskular, tidak berinnervasi. Membentuk ruang subaraknoid berisi CSF.</li>
+        <li><strong class="text-text">Pia mater:</strong> Lapisan terdalam, vaskular, menempel langsung pada SSP, mengikuti kontur gyri dan sulkus.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">Cairan Serebrospinal (CSF)</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Cairan bening yang diproduksi oleh sel ependymal plexus koroidus. Volume ~150 ml. Fungsi: proteksi mekanik & kimiawi, sirkulasi nutrisi, stabilisasi ion. Aliran: ventrikel lateral → foramen Monro → ventrikel III → akuadukus Sylvii → ventrikel IV → foramen Luschka & Magendi → ruang subaraknoid → granulasi arachnoid → sinus sagitalis superior.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Sirkulasi Darah Otak</h3>
+      <p class="text-text-dim leading-relaxed mb-4"><strong>Sirkulasi Anterior:</strong> Arteri karotis interna → arteri oftalmika, komunikan posterior, khoroidalis, serebri anterior, dan serebri tengah. <strong>Sirkulasi Posterior:</strong> Arteri vertebralis → basilaris → arteri serebri posterior. <strong>Sirkulus Willis:</strong> Anastomosis di fossa interpedunkularis.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Drainase Vena</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Vena serebri superfisial dan dalam → sinus dura (sagitalis superior, sagitalis inferior, lurus, transversus, sigmoidus) → vena jugularis interna. Vena serebri tidak memiliki katup.</p>
+    `
+  },
+  {
+    id: "neuro-3",
+    title: "Neuroanatomi 3 — Saraf Kranial & Spinal",
+    category: "neuro",
+    description: "12 pasang saraf kranial, 31 pasang saraf spinal, plexus, dan distribusi.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Sistem Saraf Tepi (SST)</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Terdiri dari saraf kranial, saraf spinal, dan ganglia. Menghubungkan SSP dengan organ target.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">12 Saraf Kranial</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">I Olfaktorius:</strong> Sensorik, penciuman.</li>
+        <li><strong class="text-text">II Optikus:</strong> Sensorik, penglihatan.</li>
+        <li><strong class="text-text">III Oculomotorius:</strong> Motorik + otonom, menggerakkan 5 otot ekstrinsik mata, otot siliaris & sfingter iris.</li>
+        <li><strong class="text-text">IV Trochlearis:</strong> Motorik, muskulus obliquus superior.</li>
+        <li><strong class="text-text">V Trigeminalis:</strong> Campuran, sensorik wajah + motorik pengunyahan (V1 oftalmikus, V2 maksilaris, V3 mandibularis).</li>
+        <li><strong class="text-text">VI Abdusens:</strong> Motorik, muskulus rektus lateralis.</li>
+        <li><strong class="text-text">VII Facialis:</strong> Campuran, ekspresi wajah, pengecapan anterior 2/3 lidah, kelenjar lakrimal & submandibular.</li>
+        <li><strong class="text-text">VIII Vestibulokokhlear:</strong> Sensorik, pendengaran & keseimbangan.</li>
+        <li><strong class="text-text">IX Glossopharyngeal:</strong> Campuran, sensorik posterior 1/3 lidah, motorik muskulus stylopharyngeus, kelenjar parotis.</li>
+        <li><strong class="text-text">X Vagus:</strong> Campuran, terdistribusi paling luas ke faring, laring, organ visceral toraks & abdomen.</li>
+        <li><strong class="text-text">XI Aksesorius:</strong> Motorik, muskulus sternocleidomastoideus & trapezius.</li>
+        <li><strong class="text-text">XII Hipoglosus:</strong> Motorik, semua otot intrinsik & ekstrinsik lidah.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">Saraf Spinal & Plexus</h3>
+      <p class="text-text-dim leading-relaxed mb-4">31 pasang: 8 servikal, 12 torakal, 5 lumbal, 5 sakral, 1 koksigcal. Akar ventral (motorik) + akar dorsal (sensorik) → ganglion spinal → saraf spinal. Plexus: servikal (C1-C4), brachialis (C5-T1), lumbalis (L1-L4), sakralis (L4-S4).</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Dermatom & Miotom</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Dermatom = area kulit yang diinervasi oleh satu saraf spinal. Miotom = otot yang diinervasi oleh satu saraf spinal.</p>
+    `
+  },
+  {
+    id: "neuro-4",
+    title: "Neuroanatomi 4 — Sistem Otonom",
+    category: "neuro",
+    description: "Sistem saraf otonom: simpatis, parasimpatis, enterik, neurotransmitter, dan efektor.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Sistem Saraf Otonom (SSO)</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Meregulasi kelenjar, otot polos, dan otot jantung. Tidak sadar & tidak sengaja. Hipotalamus sebagai pusat regulasi utama.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Simpatis (Thorakolumbar)</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Preganglion dari T1-L2. Ganglion berdekatan spinal cord (simpatis paravertebral). Neurotransmiter postganglion: norepinefrin (kecuali kelenjar keringat → ACh). Efek: "Fight or Flight" — peningkatan frekuensi napas & nadi, dilatasi pupil, hambatan pencernaan, pelepasan glukosa hati, keringat.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Parasimpatis (Kraniosakral)</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Preganglion dari saraf kranial III, VII, IX, X dan S2-S4. Ganglion dekat atau di organ target. Neurotransmiter: ACh. Efek: "Rest & Digest" — penurunan nadi & tekanan darah, stimulasi pencernaan, konstriksi pupil, produksi saliva.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Enterik</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Sistem saraf otonom khusus saluran cerna. Bekerja mandiri tapi terhubung dengan simpatis & parasimpatis.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">4. Perbandingan Simpatis vs Parasimpatis</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Lokasi ganglion:</strong> Simpatis dekat spinal cord; Parasimpatis dekat organ.</li>
+        <li><strong class="text-text">Panjang akson:</strong> Simpatis preganglion pendek, postganglion panjang; Parasimpatis sebaliknya.</li>
+        <li><strong class="text-text">Neurotransmiter:</strong> Simpatis postganglion norepinefrin; Parasimpatis ACh.</li>
+        <li><strong class="text-text">Blocking agents:</strong> Simpatis → alpha/beta blockers; Parasimpatis → atropin, skopolamin.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">5. Efektor & Jalur Eferen</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Efektor SSO adalah otot polos, otot jantung, dan kelenjar. Jalur eferen memiliki 2 neuron: preganglionik (tipis, bermielin) dan postganglionik (tidak bermielin). SNS hanya 1 neuron dari CNS ke efektor.</p>
+    `
+  },
+  {
+    id: "neuro-5",
+    title: "Neuroanatomi 5 — Sistem Somatis Motorik",
+    category: "neuro",
+    description: "Jaras motorik somatis, UMN/LMN, saraf kranial, dan neuromuscular junction.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Sistem Saraf Somatis (Motorik)</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Mengendalikan gerakan volunter pada otot rangka (skeletal muscle). Jaras eferen dari otak → medulla spinalis → radix → plexus → nervus → neuromuscular junction → otot.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Traktus Descendens</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Dari precentral gyrus (korteks motorik) → internal capsule → pedunkulus serebri → piramida medulla oblongata → dekasusasi piramida → traktus kortikospinal lateral/anterior → kornu anterior medulla spinalis.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. UMN vs LMN</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Upper Motor Neuron (UMN):</strong> Neuron di korteks motorik atau batang otak yang menuju ke inti motorik saraf kranial atau kornu anterior medulla spinalis. Lesi → spastisitas, hiperrefleksia, Babinski positif.</li>
+        <li><strong class="text-text">Lower Motor Neuron (LMN):</strong> Neuron di inti motorik/kornu anterior yang keluar melalui saraf kranial/spinal ke otot. Lesi → flasiditas, atrofi, fibrilasi, hiporefleksia.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Neuromuscular Junction</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Akson motoneuron bercabang → motor end plate → pelepasan asetilkolin → reseptor nikotinik di sarkolema otot → potensial aksi → kontraksi otot. Unit motorik = 1 motoneuron + 10-500 serabut otot.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">4. Traktus Ekstrapiramidal</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Mengatur gerakan motorik halus dan tonus otot. Melibatkan: korpus striatum, globus pallidus, inti talamik, nukleus subtalamikus, substantia nigra, formasio retikularis, dan serebelum.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">5. Neurotransmiter Motorik</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Asetilkolin (kolinergik) di neuromuscular junction. Dopamin (dopaminergik), GABA, dan norepinefrin (adrenergik) di jalur ekstrapiramidal.</p>
+    `
+  },
+  {
+    id: "histologi-1",
+    title: "Histologi 1 — Jaringan Epitel & Ikat",
+    category: "histologi",
+    description: "Klasifikasi dan struktur jaringan epitel, jaringan ikat, dan komponen matriks.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Jaringan Epitel</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Menutupi permukaan, melapisi rongga, membentuk kelenjar. Ciri: sel rapat, sedikit matriks interseluler, avaskular.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Klasifikasi</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Berdasarkan lapisan:</strong> Simple (tunggal), stratified (berlapis), pseudostratified (tampak berlapis), transitional (bentuk berubah).</li>
+        <li><strong class="text-text">Berdasarkan bentuk:</strong> Squamous (pipih, difusi/proteksi), kuboidal (sekresi/absorpsi), kolumnar (absorpsi/sekresi).</li>
+      </ul>
+      <h2 class="text-xl font-semibold text-text mb-3 mt-6">Jaringan Ikat</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Sel tersebar dalam matriks ekstraseluler kaya serat. Fungsi: penopang, perlindungan, penyimpanan, transportasi.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Jenis-jenis</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Longgar:</strong> Gel ground substance, serat kolagen/elastik/retikuler. Sel: fibroblas, makrofag, mastosit, plasma cell.</li>
+        <li><strong class="text-text">Padat teratur:</strong> Tendon, ligamentum. Serat kolagen sejajar.</li>
+        <li><strong class="text-text">Padat tidak teratur:</strong> Dermis. Serat kolagen acak.</li>
+        <li><strong class="text-text">Tulang rawan:</strong> Chondroblas, matriks padat.</li>
+        <li><strong class="text-text">Tulang:</strong> Osteoblas, osteosit, matriks terkalsifikasi.</li>
+        <li><strong class="text-text">Darah:</strong> Sel darah dalam plasma.</li>
+        <li><strong class="text-text">Lemak:</strong> Adiposit untuk energi.</li>
+      </ul>
+    `
+  },
+  {
+    id: "histologi-2",
+    title: "Histologi 2 — Otot, Saraf & Kardiovaskular",
+    category: "histologi",
+    description: "Struktur mikroskopis otot polos, rangka, jantung, neuron, dan sistem kardiovaskular.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Jaringan Otot</h2>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Otot Polos:</strong> Sel gelondongan, inti tunggal tengah, tidak berstriasi, kontraksi involunter. Ditemukan pada dinding organ berongga.</li>
+        <li><strong class="text-text">Otot Rangka:</strong> Serabut panjang, multinukleat di perifer, berstriasi, kontraksi volunter. Terikat pada tulang.</li>
+        <li><strong class="text-text">Otot Jantung:</strong> Sel bercabang, inti tunggal tengah, berstriasi, diskus interkalatus, kontraksi involunter & autoritmik.</li>
+      </ul>
+      <h2 class="text-xl font-semibold text-text mb-3 mt-6">Jaringan Saraf</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Unit struktural = neuron: badan sel (soma), dendrit (menerima impuls), akson (menghantar impuls). Sel glial: astrosit, oligodendrosit, mikroglia, sel Schwann.</p>
+      <h2 class="text-xl font-semibold text-text mb-3 mt-6">Sistem Kardiovaskular</h2>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Jantung:</strong> Endokard (endotelium), miokard (otot jantung tebal), epikard (mesotelium + jaringan ikat lemak).</li>
+        <li><strong class="text-text">Arteri:</strong> Dinding tebal 3 lapis (intima, media, adventitia). Banyak elastin & otot polos.</li>
+        <li><strong class="text-text">Vena:</strong> Dinding tipis, lumen besar, memiliki katup.</li>
+        <li><strong class="text-text">Kapiler:</strong> Dinding satu lapis sel endotelium.</li>
+      </ul>
+    `
+  },
+  {
+    id: "histologi-3",
+    title: "Histologi 3 — Mata (Tunica & Refraksi)",
+    category: "histologi",
+    description: "Tunika mata, kornea, sklera, lensa, humor aqueous/vitreous, dan kamar anterior/posterior.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Anatomi & Histologi Mata</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Mata memiliki 3 tunika: fibrosa, vasculosa (uvea), dan retina (neural).</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Tunica Fibrosa</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Sklera:</strong> Jaringan ikat padat opaque, menutupi 5/6 posterior. Tempat melekat otot ekstrinsik.</li>
+        <li><strong class="text-text">Kornea:</strong> Transparent, avaskular, anterior 1/6. 5 lapis: epitel (stratified squamous nonkeratinized), Bowman layer, stroma (kolagen teratur), Descemet membrane, endotelium (pompa deturgescence).</li>
+        <li><strong class="text-text">Limbus:</strong> Zona transisi kornea-sklera. Berisi sel punca epitel kornea, trabecular meshwork, dan kanal Schlemm.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Tunica Vasculosa (Uvea)</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Koroid:</strong> Vaskular, pigmen melanin, choriocapillaris nutrisi retina, membran Bruch.</li>
+        <li><strong class="text-text">Badan Siliaris:</strong> Otot polos (akomodasi), proses siliaris (produksi aqueous humor), zonula fibers (suspensory ligament lensa).</li>
+        <li><strong class="text-text">Iris:</strong> Memiliki sfingter pupillae (parasimpatis, miosis) dan dilator pupillae (simpatis, midriasis). Warna mata tergantung jumlah melanin stroma.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Media Refraktif</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Aqueous humor:</strong> Diproduksi proses siliaris → posterior chamber → pupil → anterior chamber → trabecular meshwork → kanal Schlemm.</li>
+        <li><strong class="text-text">Lensa:</strong> Bikonveks, transparan, terdiri dari kapsul, epitel lensa (anterior), serat lensa (mature tanpa organel, berisi kristalin).</li>
+        <li><strong class="text-text">Vitreous body:</strong> Gel kolagen + asam hialuronat, isi kamar vitreus posterior lensa.</li>
+      </ul>
+    `
+  },
+  {
+    id: "histologi-4",
+    title: "Histologi 4 — Retina & Aksesori Mata",
+    category: "histologi",
+    description: "10 lapis retina, fotoreseptor, makula, fovea, diskus optik, kelopak mata, konjungtiva, dan aparatus lakrimal.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Retina</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Lapis neural paling dalam, bertanggung jawab atas fotoresepsi. Terdiri dari 10 lapis:</p>
+      <ol class="list-decimal list-inside text-text-dim space-y-1 mb-4 ml-2 text-sm">
+        <li>Inner limiting membrane (ILL)</li>
+        <li>Nerve fiber layer (NFL) — akson ganglion → diskus optik</li>
+        <li>Ganglion cell layer (GCL)</li>
+        <li>Inner plexiform layer (IPL)</li>
+        <li>Inner nuclear layer (INL) — bipolar, horizontal, amakrin</li>
+        <li>Outer plexiform layer (OPL)</li>
+        <li>Outer nuclear layer (ONL) — badan sel rods & cones</li>
+        <li>Outer limiting layer (OLL)</li>
+        <li>Photoreceptor layer (rods & cones)</li>
+        <li>Retinal pigment epithelium (RPE)</li>
+      </ol>
+      <h3 class="text-lg font-medium text-cyan mb-2">Fotoreseptor</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Rods:</strong> ~100 juta, rhodopsin, sensitif cahaya redup, visi malam (skotopik).</li>
+        <li><strong class="text-text">Cones:</strong> ~7 juta, iodopsin (merah/hijau/biru), sensitif cahaya terang, visi warna & tajam (fotopik).</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">Area Penting</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Makula lutea:</strong> Area sentral untuk visi tajam.</li>
+        <li><strong class="text-text">Fovea centralis:</strong> Depresi sentral makula, hanya cones, avaskular, akuitas tertinggi.</li>
+        <li><strong class="text-text">Diskus optik:</strong> Area keluar saraf optik & pembuluh darah, tidak ada fotoreseptor = blind spot.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">Struktur Aksesori</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Kelopak mata:</strong> Kulit luar, konjungtiva dalam, tarsus (plat fibroelastik + kelenjar Meibomian), otot orbicularis oculi.</li>
+        <li><strong class="text-text">Konjungtiva:</strong> Mucous membrane transparan, epitel stratified columnar dengan goblet cells. Palpebral, forniceal, bulbar.</li>
+        <li><strong class="text-text">Aparatus lakrimal:</strong> Kelenjar lakrimal (compound tubuloalveolar, mioepitel) → forniks → kanalikuli → sakus lakrimal → duktus nasolakrimalis → kavum nasal.</li>
+      </ul>
+    `
+  },
+  {
+    id: "histologi-5",
+    title: "Histologi 5 — Telinga",
+    category: "histologi",
+    description: "Histologi telinga luar, tengah, dan dalam: membran timpani, ossicles, koklea, organ Corti, dan sistem vestibular.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Telinga</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Tiga bagian: telinga luar (aurikel + meatus akustikus eksternus + membran timpani), tengah (kavum timpani + ossicles + tuba Eustachius), dalam (koklea + vestibulum + kanalis semisirkularis).</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Telinga Luar</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Aurikel:</strong> Tulang rawan elastik + kulit tipis.</li>
+        <li><strong class="text-text">Meatus akustikus:</strong> Kulit dengan folikel rambut, kelenjar sebaceous, dan kelenjar serumen (modified apocrine sweat glands).</li>
+        <li><strong class="text-text">Membran timpani:</strong> 3 lapis — kutikula (kulit tipis), fibrosa (kolagen radial & sirkular), mukosa (simple kuboidal/skuamus, tanpa silia/goblet).</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Telinga Tengah</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Ossicles:</strong> Malleus, incus, stapes (tulang kompak). Melewatkan getaran ke jendela oval.</li>
+        <li><strong class="text-text">Otot:</strong> Tensor tympani (tendon ke malleus, meningkatkan tegangan membran timpani) & stapedius (tendon ke stapes, meredam getaran). Refleks atenuasi melindungi telinga dalam dari suara keras.</li>
+        <li><strong class="text-text">Tuba Eustachius:</strong> Menghubungkan kavum timpani ke nasofaring. Epitel pseudostratified ciliated columnar dengan goblet cells.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Telinga Dalam</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Labirin tulang:</strong> Semisirkular canals, vestibulum, koklea. Berisi perilymph.</li>
+        <li><strong class="text-text">Labirin membran:</strong> Semisirkular ducts, utrikulus, sakulus, koklear duct. Berisi endolymph.</li>
+        <li><strong class="text-text">Koklea:</strong> 2.5 putaran mengelilingi modiolus. Tiga ruang: scala vestibuli & tympani (perilymph), scala media/koklear duct (endolymph).</li>
+        <li><strong class="text-text">Organ Corti:</strong> Terletak di basilar membrane. Sel rambut (neuroepitelial) dengan stereosilia, tanpa kinosilium. Tectorial membrane menutupi stereosilia. Stria vascularis menghasilkan endolymph.</li>
+        <li><strong class="text-text">Vestibular:</strong> Makula utrikulus & sakulus (akselerasi linear) + crista ampullaris (akselerasi angular/rotasi).</li>
+      </ul>
+    `
+  },
+  {
+    id: "fisio-1",
+    title: "Fisiologi 1 — Penglihatan & Akomodasi",
+    category: "fisiologi",
+    description: "Fisiologi fotoresepsi, rhodopsin/iodopsin, mekanisme cahaya terang/gelap, dan akomodasi lensa.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Fisiologi Penglihatan</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Cahaya masuk melalui kornea → aqueous humor → pupil → lensa → vitreous body → retina → fotoreseptor → impuls saraf optikus → korteks visual okipital.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Fotoreseptor</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Sel batang (Rods):</strong> Rhodopsin (pigmen ungu-merah muda). Panjang & tipis. Tersebar di seluruh retina kecuali fovea. ~100 juta. Fungsi: visi malam (skotopik), akuitas rendah. Gangguan: rabun ayam (nyctalopia).</li>
+        <li><strong class="text-text">Sel kerucut (Cones):</strong> Iodopsin (biru, hijau, merah). Pendek & tebal. Terkonsentrasi di fovea. ~7 juta. Fungsi: visi warna & tajam (fotopik). Gangguan: buta warna.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Mekanisme Transduksi Cahaya</h3>
+      <p class="text-text-dim leading-relaxed mb-4"><strong>Keadaan Gelap:</strong> cGMP tinggi → channel Na+ terbuka → depolarisasi (-30 mV) → pelepasan glutamat (inhibitor) → hiperpolarisasi sel bipolar → sinyal ke ganglion terhambat.</p>
+      <p class="text-text-dim leading-relaxed mb-4"><strong>Keadaan Terang:</strong> Cahaya → isomerisasi retinal → aktivasi transduksin → fosfodiesterase menghancurkan cGMP → channel Na+ tertutup → hiperpolarisasi fotoreseptor → pelepasan glutamat berkurang → eksitasi sel bipolar → potensial aksi di ganglion.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Daya Akomodasi</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Kemampuan menyesuaikan kekuatan lensa. Otot siliaris (bagian korpus siliaris) mengontrol tegangan zonula fibers.</p>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Penglihatan jauh:</strong> Otot siliaris relaksasi → zonula tegang → lensa mendatar.</li>
+        <li><strong class="text-text">Penglihatan dekat:</strong> Otot siliaris kontraksi (parasimpatis via N. III) → zonula kendur → lensa lebih cembung & kuat.</li>
+      </ul>
+    `
+  },
+  {
+    id: "fisio-2",
+    title: "Fisiologi 2 — Pendengaran & Keseimbangan",
+    category: "fisiologi",
+    description: "Fisiologi transmisi suara, organ Corti, defleksi basilar membrane, dan mekanisme vestibular.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Fisiologi Pendengaran</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Gelombang suara → aurikel → meatus akustikus → membran timpani bergetar → ossicles (malleus→incus→stapes) → jendela oval → perilymph scala vestibuli bergerak → defleksi basilar membrane → sel rambut organ Corti bergeser terhadap tectorial membrane → potensial reseptor → saraf kokhlear → batang otak → korteks auditori temporal.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">1. Tonotopic Organization</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Basilar membrane memiliki frekuensi resonansi yang berbeda-beda:</p>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Basis koklea (dekat jendela oval):</strong> Membran sempit & kaku → sensitif frekuensi tinggi.</li>
+        <li><strong class="text-text">Apex koklea (dekat helicotrema):</strong> Membran lebar & lentur → sensitif frekuensi rendah.</li>
+      </ul>
+      <h3 class="text-lg font-medium text-cyan mb-2">2. Mekanisme Sel Rambut</h3>
+      <p class="text-text-dim leading-relaxed mb-4">Defleksi basilar membrane → pilar cells bergerak lateral → shearing force pada stereosilia sel rambut → channel mekanosensitif terbuka → K+ masuk → depolarisasi → pelepasan neurotransmitter (glutamat) → stimulasi serabut saraf kokhlear.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">3. Fisiologi Keseimbangan (Vestibular)</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Utriculus & Sakulus (Makula):</strong> Mendeteksi percepatan linear horizontal (utrikulus) dan vertikal (sakulus). Otoliths (kalsium karbonat) bergerak dalam membran otolitik → defleksi stereosilia + kinosilium.</li>
+        <li><strong class="text-text">Kanalis Semisirkularis (Crista Ampullaris):</strong> Mendeteksi percepatan angular/rotasi. Endolymph bergerak → cupula bergeser → defleksi stereosilia.</li>
+      </ul>
+    `
+  },
+  {
+    id: "fisio-3",
+    title: "Fisiologi 3 — Penciuman & Pengecapan",
+    category: "fisiologi",
+    description: "Fisiologi olfaktori, papila pengecap, kuncup pengecap, dan mekanisme transduksi kimia.",
+    content: `
+      <h2 class="text-xl font-semibold text-text mb-3">Fisiologi Penciuman</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Reseptor olfaktori terletak di mukosa olfaktoria (area olfaktoria) di atap rongga hidung. Neuron bipolar dengan dendrit memiliki silia olfaktori yang mengandung reseptor G-protein. Molekul bau terikat → aktivasi adenilat siklase → cAMP → channel Na+ & Ca2+ terbuka → potensial reseptor → impuls ke bulbus olfaktori → tractus olfaktori → korteks piriformis & amigdala.</p>
+      <h2 class="text-xl font-semibold text-text mb-3 mt-6">Fisiologi Pengecapan</h2>
+      <p class="text-text-dim leading-relaxed mb-4">Reseptor = kuncup pengecap (taste buds) terutama di papila lidah. Setiap kuncup terdiri dari sel pengecap & sel penunjang. Ujung bebas sel pengecap memiliki mikrovili yang memasuki taste pore.</p>
+      <h3 class="text-lg font-medium text-cyan mb-2">Modalitas Rasa</h3>
+      <ul class="list-disc list-inside text-text-dim space-y-1 mb-4 ml-2">
+        <li><strong class="text-text">Asam:</strong> Ion H+ memblok channel K+ atau masuk melalui channel khusus.</li>
+        <li><strong class="text-text">Asin:</strong> Na+ masuk melalui channel amiloride-sensitif.</li>
+        <li><strong class="text-text">Manis:</strong> Gula mengikat reseptor G-protein → aktivasi adenilat siklase → cAMP → blok channel K+ → depolarisasi.</li>
+        <li><strong class="text-text">Pahit:</strong> Banyak zat kimia → aktivasi PLC → IP3 → pelepasan Ca2+ intraseluler. Fungsi protektif terhadap toxin.</li>
+        <li><strong class="text-text">Umami:</strong> Glutamat → reseptor metabotropik (mGluR4) atau ionotropik.</li>
+      </ul>
+      <p class="text-text-dim leading-relaxed mb-4">Jalur saraf: anterior 2/3 lidah → N. facialis (CN VII), posterior 1/3 → N. glossopharyngeal (CN IX), area epiglotis → N. vagus (CN X) → nucleus tractus solitarius → thalamus → insula korteks.</p>
+    `
+  }
+];
+
+const quizzesData = [
+  {
+    id: "neuro-1",
+    title: "Kuis SSP & Neuron",
+    category: "neuro",
+    questions: [
+      { q: "Berapa jumlah lapisan meninges yang melindungi SSP?", options: ["2 lapisan", "3 lapisan", "4 lapisan", "5 lapisan"], correct: 1, explanation: "Meninges terdiri dari 3 lapis: Dura mater (terluar), Arachnoidea (tengah), dan Pia mater (terdalam)." },
+      { q: "Sel glial yang membentuk mielin di SSP adalah?", options: ["Astrosit", "Oligodendrosit", "Mikroglia", "Sel Schwann"], correct: 1, explanation: "Oligodendrosit membentuk mielin di SSP. Sel Schwann membentuk mielin di SST. Astrosit memberi nutrisi, mikroglia berfungsi fagosit." },
+      { q: "Bagian neuron yang menerima informasi sinaptik masuk adalah?", options: ["Akson", "Dendrit", "Soma", "Terminal akson"], correct: 1, explanation: "Dendrit adalah cabang-cabang neuron yang menerima impuls dari neuron lain. Akson menghantarkan impuls menjauhi badan sel." },
+      { q: "Thalamus berfungsi sebagai?", options: ["Pusat emosi", "Stasiun relay sensorik", "Pengatur suhu", "Pembentukan memori"], correct: 1, explanation: "Thalamus adalah stasiun relay sensorik terbesar subkortikal. Hipokampus untuk memori, hipotalamus untuk suhu & emosi." },
+      { q: "Jumlah pasang saraf spinal pada manusia adalah?", options: ["12 pasang", "21 pasang", "31 pasang", "33 pasang"], correct: 2, explanation: "Terdapat 31 pasang saraf spinal: 8 servikal, 12 torakal, 5 lumbal, 5 sakral, dan 1 koksigcal." }
+    ]
+  },
+  {
+    id: "neuro-2",
+    title: "Kuis Meninges & Vaskular",
+    category: "neuro",
+    questions: [
+      { q: "Lapisan meninges yang avaskular dan tidak berinnervasi adalah?", options: ["Dura mater", "Arachnoidea", "Pia mater", "Epidura"], correct: 1, explanation: "Arachnoidea avaskular dan tidak berinnervasi. Dura mater vaskular dan tebal. Pia mater vaskular dan menempel pada SSP." },
+      { q: "Volume normal cairan serebrospinal (CSF) adalah?", options: ["50 ml", "100 ml", "150 ml", "200 ml"], correct: 2, explanation: "Volume CSF normal adalah sekitar 150 ml. CSF diproduksi oleh plexus koroidus di ventrikel lateral." },
+      { q: "Arteri yang membawa ~80% total darah ke otak adalah?", options: ["Arteri vertebralis", "Arteri karotis interna", "Arteri basilaris", "Arteri serebri anterior"], correct: 1, explanation: "Arteri karotis interna membawa sekitar 80% darah ke otak. Arteri vertebralis bergabung membentuk basilaris." },
+      { q: "Sirkulus Willis terletak di?", options: ["Fossa cranii anterior", "Fossa interpedunkularis", "Fossa cranii posterior", "Sulcus sentralis"], correct: 1, explanation: "Sirkulus Willis terletak di fossa interpedunkularis di dasar otak, sebagai anastomosis arteri karotis interna dan vertebralis." },
+      { q: "Vena serebri tidak memiliki?", options: ["Dinding tipis", "Katup", "Anastomosis", "Sinus dura"], correct: 1, explanation: "Berbeda dengan vena tubuh lainnya, vena serebri tidak memiliki katup. Drainase mengandalkan gravitasi dan tekanan." }
+    ]
+  },
+  {
+    id: "neuro-3",
+    title: "Kuis Saraf Kranial & Spinal",
+    category: "neuro",
+    questions: [
+      { q: "Saraf kranial yang murni sensorik adalah?", options: ["III Oculomotorius", "V Trigeminalis", "I Olfaktorius", "X Vagus"], correct: 2, explanation: "N. I Olfaktorius dan N. II Optikus adalah saraf kranial yang murni sensorik. N. III adalah motorik+otonom." },
+      { q: "Saraf kranial terbesar adalah?", options: ["N. Optikus", "N. Trigeminalis", "N. Vagus", "N. Facialis"], correct: 1, explanation: "N. V (Trigeminalis) adalah saraf kranial terbesar, berfungsi sebagai saraf campuran (sensorik wajah + motorik pengunyahan)." },
+      { q: "Mnemonik innervasi otot ekstrinsik mata 'SO4 LR6 AO3' berarti?", options: ["Superior oblique oleh CN VI", "Lateral rectus oleh CN IV", "Superior oblique oleh CN IV", "All others oleh CN VI"], correct: 2, explanation: "SO4 = Superior oblique oleh CN IV (Trochlearis). LR6 = Lateral rectus oleh CN VI (Abducens). AO3 = All others oleh CN III (Oculomotorius)." },
+      { q: "Plexus yang menginervasi ekstremitas atas adalah?", options: ["Plexus lumbalis", "Plexus sakralis", "Plexus brachialis", "Plexus servikalis"], correct: 2, explanation: "Plexus brachialis (C5-T1) menginervasi ekstremitas atas. Plexus lumbalis & sakralis untuk ekstremitas bawah." },
+      { q: "Akar dorsalis saraf spinal membawa informasi?", options: ["Motorik", "Sensorik", "Otonom", "Visceral"], correct: 1, explanation: "Akar dorsalis (posterior) membawa serabut sensorik dari ganglion spinal ke medulla spinalis. Akar ventralis membawa motorik." }
+    ]
+  },
+  {
+    id: "neuro-4",
+    title: "Kuis Sistem Otonom",
+    category: "neuro",
+    questions: [
+      { q: "Sistem saraf otonom yang disebut 'thorakolumbar' adalah?", options: ["Parasimpatis", "Simpatis", "Enterik", "Somatis"], correct: 1, explanation: "Simpatis berasal dari segmen torakal & lumbal (T1-L2), sehingga disebut thorakolumbar. Parasimpatis = kraniosakral." },
+      { q: "Neurotransmiter postganglionik pada sistem simpatis adalah?", options: ["Asetilkolin", "Dopamin", "Norepinefrin", "GABA"], correct: 2, explanation: "Postganglionik simpatis melepaskan norepinefrin (kecuali kelenjar keringat yang melepaskan ACh). Parasimpatis selalu ACh." },
+      { q: "Efek aktivasi parasimpatis yang BENAR adalah?", options: ["Dilatasi pupil", "Peningkatan frekuensi jantung", "Stimulasi pencernaan", "Pelepasan glukosa hati"], correct: 2, explanation: "Parasimpatis ('Rest & Digest') merangsang pencernaan, konstriksi pupil, dan menurunkan denyut jantung. Simpatis sebaliknya." },
+      { q: "Ganglion parasimpatis umumnya terletak?", options: ["Jauh dari organ", "Dekat spinal cord", "Dekat atau di organ target", "Hanya di batang otak"], correct: 2, explanation: "Ganglion parasimpatis terletak dekat atau di dalam organ target, sehingga postganglionik sangat pendek. Ganglion simpatis dekat spinal cord." },
+      { q: "Hipotalamus berfungsi sebagai?", options: ["Pusat gerakan volunter", "Pusat regulasi utama SSO", "Stasiun relay sensorik", "Pembentukan memori jangka panjang"], correct: 1, explanation: "Hipotalamus adalah pusat regulasi utama untuk seluruh sistem saraf otonom perifer, mengatur homeostasis." }
+    ]
+  },
+  {
+    id: "neuro-5",
+    title: "Kuis Motorik Somatis",
+    category: "neuro",
+    questions: [
+      { q: "Traktus kortikospinal berfungsi untuk?", options: ["Gerakan involunter", "Gerakan volunter halus", "Tonus otot", "Refleks spinal"], correct: 1, explanation: "Traktus kortikospinal (pyramidal) mengatur gerakan volunter yang halus dan terpisah, terutama distal anggota gerak." },
+      { q: "Lesi Lower Motor Neuron (LMN) menyebabkan?", options: ["Spastisitas", "Hiperrefleksia", "Flasiditas & atrofi", "Babinski positif"], correct: 2, explanation: "Lesi LMN menyebabkan flasiditas, atrofi, fibrilasi, dan hiporefleksia. Lesi UMN menyebabkan spastisitas & Babinski positif." },
+      { q: "Neurotransmiter di neuromuscular junction adalah?", options: ["Norepinefrin", "Dopamin", "Asetilkolin", "GABA"], correct: 2, explanation: "Asetilkolin dilepaskan oleh terminal akson motoneuron dan berikatan dengan reseptor nikotinik di sarkolema otot rangka." },
+      { q: "Traktus ekstrapiramidal melibatkan struktur BERIKUT KECUALI?", options: ["Substantia nigra", "Globus pallidus", "Precentral gyrus", "Formasio retikularis"], correct: 2, explanation: "Precentral gyrus adalah pusat kortikospinal (traktus piramidal). Ekstrapiramidal melibatkan basal ganglia, substantia nigra, serebelum, dan formasio retikularis." },
+      { q: "Dekasusasi piramida terjadi di?", options: ["Mesensephalon", "Pons", "Medulla oblongata", "Medulla spinalis"], correct: 2, explanation: "Dekasusasi piramida terjadi di pertemuan medulla oblongata dan medulla spinalis, di mana sebagian besar serat kortikospinal bersilangan." }
+    ]
+  },
+  {
+    id: "histologi-1",
+    title: "Kuis Epitel & Jaringan Ikat",
+    category: "histologi",
+    questions: [
+      { q: "Ciri khas jaringan epitel adalah?", options: ["Banyak matriks", "Sel rapat, avaskular", "Banyak serat", "Vaskular"], correct: 1, explanation: "Epitel memiliki sel yang rapat dengan sedikit matriks interseluler dan tidak memiliki pembuluh darah (avaskular)." },
+      { q: "Epitel yang tampak berlapis tetapi sebenarnya tunggal disebut?", options: ["Stratified", "Pseudostratified", "Transisional", "Simple"], correct: 1, explanation: "Pseudostratified epithelium tampak berlapis karena inti sel pada level berbeda, tetapi setiap sel menempel pada basement membrane." },
+      { q: "Sel utama jaringan ikat longgar adalah?", options: ["Osteoblas", "Fibroblas", "Chondroblas", "Adiposit"], correct: 1, explanation: "Fibroblas adalah sel utama jaringan ikat longgar yang menghasilkan serat kolagen, elastik, dan retikuler." },
+      { q: "Jaringan ikat yang matriksnya terkalsifikasi adalah?", options: ["Tulang rawan", "Tulang", "Darah", "Lemak"], correct: 1, explanation: "Tulang (bone) memiliki matriks ekstraseluler yang terkalsifikasi. Tulang rawan memiliki matriks padat tapi tidak terkalsifikasi." },
+      { q: "Tendon tersusun dari jaringan ikat?", options: ["Longgar", "Padat teratur", "Padat tidak teratur", "Adiposa"], correct: 1, explanation: "Tendon dan ligamentum tersusun dari jaringan ikat padat teratur dengan serat kolagen yang tersusun sejajar." }
+    ]
+  },
+  {
+    id: "histologi-2",
+    title: "Kuis Otot, Saraf & Kardiovaskular",
+    category: "histologi",
+    questions: [
+      { q: "Otot yang memiliki diskus interkalatus adalah?", options: ["Otot polos", "Otot rangka", "Otot jantung", "Otot visceral"], correct: 2, explanation: "Diskus interkalatus adalah ciri khas otot jantung yang menghubungkan sel-sel secara elektrik dan mekanik." },
+      { q: "Unit struktural jaringan saraf adalah?", options: ["Glial", "Neuron", "Akson", "Dendrit"], correct: 1, explanation: "Neuron adalah unit struktural dan fungsional jaringan saraf. Glial adalah sel penunjang." },
+      { q: "Lapisan tengah dinding jantung yang terdiri dari otot jantung adalah?", options: ["Endokard", "Epikard", "Miokard", "Perikard"], correct: 2, explanation: "Miokard adalah lapisan tengah dinding jantung yang tebal dan tersusun dari otot jantung. Endokard di dalam, epikard di luar." },
+      { q: "Pembuluh darah dengan dinding paling tipis adalah?", options: ["Arteri", "Vena", "Kapiler", "Arteriol"], correct: 2, explanation: "Kapiler memiliki dinding paling tipis (hanya satu lapis sel endotelium) untuk memudahkan pertukaran zat." },
+      { q: "Sel darah merah tidak memiliki?", options: ["Hemoglobin", "Inti", "Mitokondria", "Keduanya B & C"], correct: 3, explanation: "Eritrosit dewasa tidak memiliki inti dan organel (termasuk mitokondria) untuk memberikan ruang maksimal bagi hemoglobin." }
+    ]
+  },
+  {
+    id: "histologi-3",
+    title: "Kuis Histologi Mata",
+    category: "histologi",
+    questions: [
+      { q: "Lapisan kornea yang berfungsi sebagai pompa deturgescence adalah?", options: ["Epitel", "Bowman layer", "Stroma", "Endotelium"], correct: 3, explanation: "Endotelium kornea mengandung pompa Na+/K+-ATPase yang memompa cairan keluar dari stroma untuk menjaga transparansi (deturgescence)." },
+      { q: "Struktur yang memproduksi aqueous humor adalah?", options: ["Koroid", "Badan siliaris", "Retina", "Iris"], correct: 1, explanation: "Proses siliaris (bagian badan siliaris) memproduksi aqueous humor. Stria vascularis di telinga memproduksi endolymph." },
+      { q: "Otot yang mengakomodasi lensa untuk penglihatan dekat adalah?", options: ["Otot siliaris", "Dilator pupillae", "Sphincter pupillae", "Otot rektus"], correct: 0, explanation: "Otot siliaris berkontraksi untuk mengendurkan zonula fibers sehingga lensa menjadi lebih cembung (akomodasi dekat)." },
+      { q: "Kanal Schlemm berfungsi untuk?", options: ["Memproduksi aqueous humor", "Mengalirkan aqueous humor ke vena", "Mengalirkan vitreous humor", "Mengalirkan endolymph"], correct: 1, explanation: "Kanal Schlemm (sinus vena sklera) menerima aqueous humor dari trabecular meshwork dan mengalirkannya ke sistem vena episcleral." },
+      { q: "Lensa mata terdiri dari serat yang mengandung protein?", options: ["Keratin", "Kolagen", "Kristalin", "Elastin"], correct: 2, explanation: "Serat lensa mengandung protein kristalin yang tinggi konsentrasinya, memberikan indeks bias tinggi dan transparansi." }
+    ]
+  },
+  {
+    id: "histologi-4",
+    title: "Kuis Retina & Aksesori Mata",
+    category: "histologi",
+    questions: [
+      { q: "Area retina dengan akuitas visual tertinggi adalah?", options: ["Diskus optik", "Makula lutea", "Fovea centralis", "Ora serrata"], correct: 2, explanation: "Fovea centralis adalah depresi kecil di tengah makula yang hanya mengandung cones, avaskular, dan memiliki akuitas visual tertinggi." },
+      { q: "Lapisan retina yang mengandung pigmen melanin dan berfungsi sebagai blood-retina barrier adalah?", options: ["NFL", "RPE", "ONL", "IPL"], correct: 1, explanation: "Retinal Pigment Epithelium (RPE) mengandung melanin, mengurangi hamburan cahaya, dan berfungsi sebagai blood-retina barrier luar." },
+      { q: "Kelenjar yang menghasilkan minyak untuk mengurangi penguapan air mata adalah?", options: ["Kelenjar lakrimal", "Kelenjar Meibomian", "Kelenjar serumen", "Kelenjar Zeis"], correct: 1, explanation: "Kelenjar Meibomian (tarsal glands) adalah kelenjar sebaceous modifikasi di kelopak mata yang menghasilkan minyak (sebum) untuk mengurangi evaporasi air mata." },
+      { q: "Konjungtiva bulbar dilapisi oleh epitel?", options: ["Stratified squamous keratinized", "Stratified columnar → squamous", "Simple squamous", "Pseudostratified ciliated"], correct: 1, explanation: "Konjungtiva bulbar dilapisi oleh epitel stratified columnar yang bertransisi ke squamous. Konjungtiva palpebral adalah stratified columnar dengan goblet cells." },
+      { q: "Blind spot terjadi karena?", options: ["Tidak ada pembuluh darah", "Tidak ada fotoreseptor", "Tidak ada pigmen", "Tidak ada akson"], correct: 1, explanation: "Blind spot (diskus optik) adalah area tempat akson ganglion keluar membentuk nervus optikus. Tidak ada rods atau cones di area ini." }
+    ]
+  },
+  {
+    id: "histologi-5",
+    title: "Kuis Histologi Telinga",
+    category: "histologi",
+    questions: [
+      { q: "Membran timpani memiliki berapa lapis?", options: ["2 lapis", "3 lapis", "4 lapis", "5 lapis"], correct: 1, explanation: "Membran timpani memiliki 3 lapis: kutikula (kulit), fibrosa (kolagen radial & sirkular), dan mukosa (simple squamous/kuboidal)." },
+      { q: "Otot terkecil di tubuh manusia adalah?", options: ["Tensor tympani", "Stapedius", "Stapedius", "Auricularis anterior"], correct: 1, explanation: "Stapedius adalah otot rangka terkecil di tubuh manusia (hanya beberapa mm). Tendonnya menempel pada stapes." },
+      { q: "Refleks atenuasi telinga tengah melibatkan kontraksi?", options: ["Stapedius & tensor tympani", "Stapedius saja", "Tensor tympani saja", "Otot aurikular"], correct: 0, explanation: "Kontraksi stapedius dan tensor tympani membuat rantai ossicles lebih kaku, mengurangi transmisi getaran ke telinga dalam saat suara sangat keras." },
+      { q: "Endolymph diproduksi oleh?", options: ["Kelenjar lakrimal", "Stria vascularis", "Proses siliaris", "Kelenjar serumen"], correct: 1, explanation: "Stria vascularis adalah epitel vaskularisasi di dinding lateral koklear duct yang menghasilkan endolymph dan memelihara potensial endokoklear." },
+      { q: "Sel rambut organ Corti memiliki ciri?", options: ["Memiliki kinosilium", "Memiliki stereosilia", "Tidak memiliki cilia", "Memiliki flagella"], correct: 1, explanation: "Sel rambut organ Corti memiliki stereosilia (mikrovili sensorik) tetapi tidak memiliki kinosilium. Sel rambut vestibular memiliki stereosilia + 1 kinosilium." }
+    ]
+  },
+  {
+    id: "fisio-1",
+    title: "Kuis Fisiologi Penglihatan",
+    category: "fisiologi",
+    questions: [
+      { q: "Pigmen pada sel batang yang sensitif terhadap cahaya redup adalah?", options: ["Iodopsin", "Rhodopsin", "Melanopsin", "Kromoprotein"], correct: 1, explanation: "Rhodopsin (visual purple) adalah pigmen pada sel batang (rods) yang sensitif terhadap cahaya redup. Iodopsin ada pada cones." },
+      { q: "Pada keadaan gelap, fotoreseptor mengalami?", options: ["Hiperpolarisasi", "Depolarisasi", "Repolarisasi", "Aksi potensial"], correct: 1, explanation: "Pada gelap, channel Na+ terbuka karena cGMP tinggi → Na+ masuk → depolarisasi (-30 mV). Cahaya menyebabkan hiperpolarisasi." },
+      { q: "Gangguan penglihatan di malam hari disebut?", options: ["Buta warna", "Rabun ayam", "Katarak", "Glaukoma"], correct: 1, explanation: "Rabun ayam (nyctalopia) adalah gangguan visi malam akibat kerusakan rods atau kekurangan vitamin A (retinal)." },
+      { q: "Akomodasi untuk penglihatan dekat melibatkan?", options: ["Relaksasi otot siliaris", "Kontraksi otot siliaris", "Kontraksi otot rektus", "Relaksasi sfingter pupillae"], correct: 1, explanation: "Kontraksi otot siliaris (parasimpatis via N. III) mengendurkan zonula fibers sehingga lensa menjadi lebih cembung untuk dekat." },
+      { q: "Neurotransmiter yang dilepaskan fotoreseptor saat gelap adalah?", options: ["GABA", "Glycine", "Glutamat", "Asetilkolin"], correct: 2, explanation: "Pada keadaan gelap (depolarisasi), fotoreseptor melepaskan glutamat yang bersifat inhibitor pada sel bipolar OFF dan eksitator pada ON." }
+    ]
+  },
+  {
+    id: "fisio-2",
+    title: "Kuis Fisiologi Pendengaran",
+    category: "fisiologi",
+    questions: [
+      { q: "Frekuensi tinggi dideteksi di bagian koklea?", options: ["Apex", "Basis", "Helicotrema", "Modiolus"], correct: 1, explanation: "Basis koklea (dekat jendela oval) memiliki basilar membrane yang sempit & kaku, resonansi frekuensi tinggi. Apex untuk frekuensi rendah." },
+      { q: "Gelombang suara diteruskan dari stapes ke?", options: ["Jendela bulat", "Jendela oval", "Koklear duct", "Tuba Eustachius"], correct: 1, explanation: "Stapes menggetarkan jendela oval (fenestra ovalis). Jendela bulat (fenestra rotunda) berfungsi untuk pelepasan tekanan." },
+      { q: "Mekanisme transduksi di organ Corti melibatkan?", options: ["Kinosilium", "Stereosilia", "Flagella", "Mikrovili absorptif"], correct: 1, explanation: "Shearing force antara stereosilia sel rambut organ Corti dengan tectorial membrane membuka channel mekanosensitif." },
+      { q: "Endolymph memiliki komposisi ion mirip?", options: ["Plasma darah", "Cairan intraseluler", "Perilymph", "Urine"], correct: 1, explanation: "Endolymph memiliki komposisi ion mirip cairan intraseluler (tinggi K+, rendah Na+). Perilymph mirip plasma (tinggi Na+, rendah K+)." },
+      { q: "Makula utrikulus mendeteksi percepatan?", options: ["Angular/rotasi", "Linear horizontal", "Linear vertikal", "Gravitasi saja"], correct: 1, explanation: "Makula utrikulus mendeteksi percepatan linear horizontal. Makula sakulus untuk linear vertikal. Crista ampullaris untuk angular/rotasi." }
+    ]
+  },
+  {
+    id: "fisio-3",
+    title: "Kuis Penciuman & Pengecapan",
+    category: "fisiologi",
+    questions: [
+      { q: "Reseptor penciuman terletak di?", options: ["Mukosa hidung anterior", "Area olfaktoria", "Sinus paranasalis", "Konka nasalis"], correct: 1, explanation: "Reseptor olfaktori (neuron bipolar dengan silia olfaktori) terletak di mukosa olfaktoria di atap rongga hidung (area olfaktoria)." },
+      { q: "Neurotransmiter utama di junction olfaktori adalah?", options: ["Asetilkolin", "Glutamat", "cAMP", "GABA"], correct: 2, explanation: "Molekul bau mengaktivasi reseptor G-protein → adenilat siklase → cAMP → pembukaan channel Na+/Ca2+. cAMP adalah second messenger utama." },
+      { q: "Kuncup pengecap (taste bud) terdapat di?", options: ["Hanya ujung lidah", "Hanya pangkal lidah", "Seluruh lidah & epiglotis", "Hanya mukosa pipi"], correct: 2, explanation: "Kuncup pengecap tersebar di seluruh lidah, palate lunak, faring, dan epiglotis, terutama di papila." },
+      { q: "Rasa pahit diindikasikan oleh aktivasi?", options: ["cAMP", "IP3/DAG pathway", "Channel Na+ amiloride", "Channel K+"], correct: 1, explanation: "Rasa pahit diindikasikan oleh banyak zat yang mengaktivasi fosfolipase C → IP3 → pelepasan Ca2+ intraseluler. Berfungsi sebagai deteksi toxin." },
+      { q: "Saraf yang membawa rasa dari posterior 1/3 lidah adalah?", options: ["N. Facialis (CN VII)", "N. Glossopharyngeal (CN IX)", "N. Vagus (CN X)", "N. Trigeminalis (CN V)"], correct: 1, explanation: "N. Glossopharyngeal (CN IX) membawa informasi rasa dari posterior 1/3 lidah. N. Facialis untuk anterior 2/3." }
+    ]
+  }
+];
+
+const examsData = [
+  {
+    id: "exam-neuro",
+    title: "Ujian Komprehensif Neuroanatomi",
+    description: "30 soal pilihan ganda • 60 menit • Semua topik neuroanatomi",
+    questions: [
+      { q: "Otak besar terdiri dari berapa hemisfer?", options: ["1", "2", "3", "4"], correct: 1, explanation: "Cerebrum terdiri dari dua hemisfer (kiri dan kanan) yang dihubungkan oleh korpus kalosum." },
+      { q: "Bagian otak yang mengatur fungsi vital adalah?", options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Hipokampus"], correct: 2, explanation: "Medulla oblongata mengatur fungsi vital seperti pernapasan, denyut jantung, dan tekanan darah." },
+      { q: "Lapisan terluar meninges adalah?", options: ["Pia mater", "Arachnoidea", "Dura mater", "Subdural"], correct: 2, explanation: "Dura mater adalah lapisan terluar meninges, terdiri dari jaringan ikat tebal dan fibrosa." },
+      { q: "Saraf kranial yang berhubungan dengan penciuman adalah?", options: ["N. I", "N. II", "N. III", "N. IV"], correct: 0, explanation: "N. I (Olfaktorius) adalah saraf kranial murni sensorik untuk penciuman." },
+      { q: "Jumlah pasang saraf spinal adalah?", options: ["12", "21", "31", "41"], correct: 2, explanation: "Terdapat 31 pasang saraf spinal: 8 servikal, 12 torakal, 5 lumbal, 5 sakral, 1 koksigcal." },
+      { q: "Jalur sensorik untuk propriosepsi adalah?", options: ["Spinothalamik", "Dorsal kolom", "Kortikospinal", "Spinocerebellar"], correct: 1, explanation: "Jalur dorsal kolom (fasciculus gracilis & cuneatus) menghantar propriosepsi, vibrasi, dan tekanan halus." },
+      { q: "Plexus yang menginnervasi lengan adalah?", options: ["Lumbal", "Sakral", "Brachialis", "Servikal"], correct: 2, explanation: "Plexus brachialis (C5-T1) menginnervasi ekstremitas atas." },
+      { q: "Bagian neuron yang menerima impuls adalah?", options: ["Akson", "Dendrit", "Soma", "Terminal akson"], correct: 1, explanation: "Dendrit menerima impuls dari neuron lain. Akson menghantarkan impuls menjauhi soma." },
+      { q: "Sel glial yang membentuk mielin di SSP adalah?", options: ["Sel Schwann", "Astrosit", "Oligodendrosit", "Mikroglia"], correct: 2, explanation: "Oligodendrosit membentuk mielin di SSP. Sel Schwann membentuk mielin di SST." },
+      { q: "Hipotalamus berperan dalam?", options: ["Penglihatan", "Regulasi homeostasis", "Gerakan", "Memori"], correct: 1, explanation: "Hipotalamus mengatur homeostasis, suhu, nafsu makan, siklus tidur, dan aktivitas sistem endokrin." },
+      { q: "Sirkulus Willis dibentuk oleh anastomosis?", options: ["Karotis eksterna & vertebralis", "Karotis interna & vertebralis", "Karotis interna & basiliris", "Vertebralis & basiliris"], correct: 1, explanation: "Sirkulus Willis terbentuk dari anastomosis dua arteri karotis interna dan dua arteri vertebralis." },
+      { q: "Neurotransmiter postganglionik simpatis adalah?", options: ["Asetilkolin", "Dopamin", "Norepinefrin", "Serotonin"], correct: 2, explanation: "Postganglionik simpatis melepaskan norepinefrin (kecuali kelenjar keringat yang menggunakan ACh)." },
+      { q: "Efekor sistem saraf somatis adalah?", options: ["Otot polos", "Kelenjar", "Otot rangka", "Otot jantung"], correct: 2, explanation: "Sistem saraf somatis mengendalikan otot rangka (skeletal muscle) untuk gerakan volunter." },
+      { q: "Traktus kortikospinal lateral terletak di?", options: ["Kolom anterior", "Kolom lateral", "Kolom posterior", "Kornu anterior"], correct: 1, explanation: "Traktus kortikospinal lateral terletak di kolom lateral medulla spinalis setelah dekasusasi piramida." },
+      { q: "Lesi UMN menyebabkan tanda?", options: ["Flasiditas", "Atrofi", "Spastisitas", "Fibrilasi"], correct: 2, explanation: "Lesi UMN menyebabkan spastisitas, hiperrefleksia, dan tanda Babinski positif. Lesi LMN menyebabkan flasiditas & atrofi." },
+      { q: "Arteri vertebralis masuk ke tengkorak melalui?", options: ["Foramen magnum", "Foramen ovale", "Hiatus canalis nervi petrosi", "Foramen spinosum"], correct: 0, explanation: "Arteri vertebralis masuk melalui foramen magnum dan bergabung membentuk arteri basilaris." },
+      { q: "Volume normal CSF adalah?", options: ["50 ml", "100 ml", "150 ml", "500 ml"], correct: 2, explanation: "Volume normal CSF adalah sekitar 150 ml, diproduksi terutama di plexus koroidus ventrikel lateral." },
+      { q: "N. Vagus (CN X) mensuplai area?", options: ["Hanya kepala", "Kepala dan leher", "Kepala leher dan toraks", "Kepala sampai abdomen"], correct: 3, explanation: "N. Vagus adalah saraf kranial terpanjang, mensuplai faring, laring, dan organ visceral dari leher, toraks, hingga abdomen." },
+      { q: "Dekasusasi piramida terjadi di?", options: ["Pons", "Medulla oblongata", "Mesensephalon", "Spinal cord"], correct: 1, explanation: "Dekasusasi piramida terjadi di medulla oblongata, di mana serat kortikospinal bersilangan ke sisi kontralateral." },
+      { q: "Unit motorik terdiri dari?", options: ["1 motoneuron + 1 serabut otot", "1 motoneuron + 10-500 serabut otot", "2 motoneuron + 1 serabut otot", "2 motoneuron + 100 serabut otot"], correct: 1, explanation: "Unit motorik = 1 motoneuron + semua serabut otot yang diinervasinya (10-500 serabut)." },
+      { q: "Sistem saraf otonom yang disebut kraniosakral adalah?", options: ["Simpatis", "Parasimpatis", "Enterik", "Somatis"], correct: 1, explanation: "Parasimpatis berasal dari saraf kranial (III, VII, IX, X) dan segmen sakral (S2-S4), sehingga disebut kraniosakral." },
+      { q: "Ganglion parasimpatis umumnya terletak?", options: ["Paravertebral", "Prevertebral", "Intramural/terminal", "Jauh dari organ"], correct: 2, explanation: "Ganglion parasimpatis umumnya terletak intramural (di dinding organ) atau terminal (dekat organ target)." },
+      { q: "Refleks atenuasi telinga melibatkan kontraksi?", options: ["Tensor tympani saja", "Stapedius saja", "Keduanya", "Tidak ada otot"], correct: 2, explanation: "Kontraksi tensor tympani dan stapedius membuat rantai ossicles lebih kaku, melindungi telinga dalam dari suara keras." },
+      { q: "Tonotopic organization koklea berarti?", options: ["Semua frekuensi dideteksi di tempat sama", "Frekuensi berbeda dideteksi di lokasi berbeda", "Hanya frekuensi tinggi dideteksi", "Hanya frekuensi rendah dideteksi"], correct: 1, explanation: "Basilar membrane memiliki resonansi frekuensi berbeda-beda di sepanjang panjangnya: basis untuk tinggi, apex untuk rendah." },
+      { q: "Otot siliaris berkontraksi untuk?", options: ["Penglihatan jauh", "Penglihatan dekat", "Dilatasi pupil", "Konstriksi pupil"], correct: 1, explanation: "Kontraksi otot siliaris mengendurkan zonula fibers, membuat lensa lebih cembung untuk akomodasi dekat." },
+      { q: "RPE (Retinal Pigment Epithelium) berfungsi sebagai?", options: ["Fotoreseptor", "Blood-retina barrier", "Neuron transmisi", "Produksi aqueous humor"], correct: 1, explanation: "RPE berfungsi sebagai blood-retina barrier luar, absorbsi cahaya, fagositosis segmen luar fotoreseptor, dan metabolisme vitamin A." },
+      { q: "Kelenjar Meibomian terletak di?", options: ["Konjungtiva", "Tarsus kelopak mata", "Kornea", "Sklera"], correct: 1, explanation: "Kelenjar Meibomian adalah kelenjar sebaceous modifikasi yang terletak di tarsus (plat fibroelastik) kelopak mata." },
+      { q: "Makula utrikulus mendeteksi?", options: ["Rotasi kepala", "Akselerasi linear horizontal", "Akselerasi angular", "Getaran suara"], correct: 1, explanation: "Makula utrikulus mendeteksi percepatan linear horizontal. Makula sakulus untuk vertikal. Crista ampullaris untuk angular." },
+      { q: "Rasa manis diindikasikan oleh aktivasi?", options: ["cAMP pathway", "IP3 pathway", "Channel K+", "Channel Cl-"], correct: 0, explanation: "Rasa manis mengaktivasi reseptor G-protein → adenilat siklase → cAMP → blok channel K+ → depolarisasi sel pengecap." },
+      { q: "Kornea transparan karena?", options: ["Vaskularisasi tinggi", "Arrangement kolagen teratur & avaskular", "Pigmen melanin", "Sel-sel besar"], correct: 1, explanation: "Kornea transparan karena avaskular, arrangement kolagen teratur, dan endotelium memompa cairan (deturgescence)." }
+    ]
+  },
+  {
+    id: "exam-histologi",
+    title: "Ujian Komprehensif Histologi",
+    description: "30 soal pilihan ganda • 60 menit • Epitel, ikat, otot, saraf, mata, telinga",
+    questions: [
+      { q: "Epitel yang fungsinya difusi dan proteksi adalah?", options: ["Kuboidal", "Kolumnar", "Squamous", "Transisional"], correct: 2, explanation: "Epitel squamous (pipih) berfungsi untuk difusi dan proteksi. Kuboidal untuk sekresi/absorpsi." },
+      { q: "Jaringan ikat yang matriksnya berupa plasma adalah?", options: ["Tulang", "Darah", "Lemak", "Tulang rawan"], correct: 1, explanation: "Darah adalah jaringan ikat khusus dengan matriks cair berupa plasma. Sel darah merah dan putih terapung di dalamnya." },
+      { q: "Serabut otot rangka memiliki ciri?", options: ["Uninukleat", "Multinukleat", "Inti tengah", "Bercabang"], correct: 1, explanation: "Serabut otot rangka (skeletal) adalah multinukleat dengan inti di perifer, berstriasi, dan panjang." },
+      { q: "Otot yang kontraksinya involunter dan autoritmik adalah?", options: ["Rangka", "Polos", "Jantung", "Visceral"], correct: 2, explanation: "Otot jantung memiliki kontraksi involunter dan autoritmik karena adanya nodus sinuatrial (pacemaker)." },
+      { q: "Lapisan terluar dinding jantung adalah?", options: ["Endokard", "Miokard", "Epikard", "Perikard"], correct: 2, explanation: "Epikard adalah lapisan terluar dinding jantung (visceral layer of serous pericardium). Endokard di dalam, miokard di tengah." },
+      { q: "Pembuluh darah yang memiliki katup adalah?", options: ["Arteri", "Arteriol", "Vena", "Kapiler"], correct: 2, explanation: "Vena memiliki katup untuk mencegah backflow karena tekanan darah rendah. Arteri tidak memiliki katup." },
+      { q: "Sel yang menghasilkan serat kolagen adalah?", options: ["Makrofag", "Fibroblas", "Mastosit", "Plasma cell"], correct: 1, explanation: "Fibroblas adalah sel utama jaringan ikat yang menghasilkan serat kolagen, elastik, dan substansi dasar." },
+      { q: "Epitel transisional ditemukan di?", options: ["Kulit", "Usus", "Kandung kemih", "Paru-paru"], correct: 2, explanation: "Epitel transisional (urotelium) ditemukan di kandung kemih, ureter, dan renal pelvis. Bentuk sel berubah sesuai distensi." },
+      { q: "Tendon terdiri dari jaringan ikat?", options: ["Longgar", "Padat teratur", "Padat tidak teratur", "Adiposa"], correct: 1, explanation: "Tendon dan ligamentum tersusun dari jaringan ikat padat teratur dengan serat kolagen sejajar untuk menahan tarikan kuat." },
+      { q: "Sel darah merah tidak memiliki?", options: ["Hemoglobin", "Inti", "Mitokondria", "Keduanya B & C"], correct: 3, explanation: "Eritrosit dewasa tidak memiliki inti dan organel (mitokondria, ribosom) untuk memberikan ruang maksimal bagi hemoglobin." },
+      { q: "Lapisan kornea paling tebal adalah?", options: ["Epitel", "Bowman", "Stroma", "Descemet"], correct: 2, explanation: "Stroma kornea adalah lapisan paling tebal (~90% ketebalan kornea), tersusun dari ~60 lapis lamella kolagen teratur." },
+      { q: "Badan siliaris berfungsi untuk?", options: ["Fotoresepsi", "Produksi aqueous humor & akomodasi", "Transmisi cahaya", "Proteksi mekanik"], correct: 1, explanation: "Badan siliaris memproduksi aqueous humor dan berkontraksi untuk akomodasi lensa (via zonula fibers)." },
+      { q: "Kanal Schlemm menerima cairan dari?", options: ["Vitreous body", "Trabecular meshwork", "Koklear duct", "Subaraknoid"], correct: 1, explanation: "Kanal Schlemm menerima aqueous humor dari trabecular meshwork di sudut anterior kamar anterior." },
+      { q: "Fovea centralis memiliki ciri?", options: ["Hanya rods", "Hanya cones", "Rods & cones sama", "Tidak ada fotoreseptor"], correct: 1, explanation: "Fovea centralis hanya mengandung cones, avaskular, dan memiliki akuitas visual tertinggi. Rods tidak ada di fovea." },
+      { q: "RPE berfungsi sebagai?", options: ["Fotoreseptor", "Blood-retina barrier", "Neuron", "Otot"], correct: 1, explanation: "Retinal Pigment Epithelium (RPE) berfungsi sebagai blood-retina barrier luar, absorbsi cahaya, dan fagositosis segmen luar fotoreseptor." },
+      { q: "Konjungtiva palpebral dilapisi oleh?", options: ["Stratified squamous", "Stratified columnar dengan goblet cells", "Simple squamous", "Pseudostratified ciliated"], correct: 1, explanation: "Konjungtiva palpebral dilapisi oleh epitel stratified columnar dengan goblet cells yang banyak. Konjungtiva bulbar bertransisi ke squamous." },
+      { q: "Kelenjar lakrimal menghasilkan?", options: ["Minyak", "Air mata/lacrimal fluid", "Mukus", "Serumen"], correct: 1, explanation: "Kelenjar lakrimal (compound tubuloalveolar) menghasilkan lacrimal fluid (air mata) yang mengandung lysozyme antibakteri." },
+      { q: "Membran timpani memiliki lapisan?", options: ["2", "3", "4", "5"], correct: 1, explanation: "Membran timpani memiliki 3 lapis: kutikula (kulit), fibrosa (kolagen), dan mukosa (simple squamous/kuboidal)." },
+      { q: "Otot terkecil di tubuh adalah?", options: ["Tensor tympani", "Stapedius", "Auricularis", "Platysma"], correct: 1, explanation: "Stapedius adalah otot rangka terkecil di tubuh manusia, menempel pada stapes di telinga tengah." },
+      { q: "Stria vascularis berfungsi untuk?", options: ["Produksi perilymph", "Produksi endolymph", "Transmisi suara", "Proteksi mekanik"], correct: 1, explanation: "Stria vascularis di dinding lateral koklear duct memproduksi endolymph dan memelihara potensial endokoklear (+80 mV)." },
+      { q: "Sel rambut organ Corti memiliki?", options: ["Kinosilium", "Stereosilia", "Flagella", "Silia motil"], correct: 1, explanation: "Sel rambut organ Corti memiliki stereosilia (mikrovili sensorik) tetapi tidak memiliki kinosilium. Vestibular hair cells memiliki kinosilium." },
+      { q: "Basilar membrane mendukung?", options: ["Tectorial membrane", "Organ Corti", "Stria vascularis", "Reissner membrane"], correct: 1, explanation: "Basilar membrane mendukung organ Corti dan berperan dalam diskriminasi frekuensi suara (tonotopic organization)." },
+      { q: "Epitel yang mengalami perubahan bentuk sesuai distensi adalah?", options: ["Simple squamous", "Stratified squamous", "Transisional", "Pseudostratified"], correct: 2, explanation: "Epitel transisional (urotelium) dapat berubah bentuk dari kuboidal saat kosong menjadi squamous saat penuh." },
+      { q: "Otot jantung memiliki ciri KECUALI?", options: ["Bercabang", "Berstriasi", "Diskus interkalatus", "Multinukleat"], correct: 3, explanation: "Otot jantung bersel tunggal (uninukleat), bercabang, berstriasi, dan memiliki diskus interkalatus. Otot rangka yang multinukleat." },
+      { q: "Neuron yang menghantar impuls dari SSP ke otot rangka adalah?", options: ["Interneuron", "Motoneuron", "Sensorineuron", "Autonomic neuron"], correct: 1, explanation: "Motoneuron (lower motor neuron) menghantar impuls dari kornu anterior medulla spinalis ke otot rangka." },
+      { q: "Jaringan ikat padat tidak teratur ditemukan di?", options: ["Tendon", "Ligamentum", "Dermis", "Fasia"], correct: 2, explanation: "Dermis kulit tersusun dari jaringan ikat padat tidak teratur dengan serat kolagen yang tersusun acak. Tendon adalah padat teratur." },
+      { q: "Kornea transparan karena KECUALI?", options: ["Avaskular", "Arrangement kolagen teratur", "Endothelial pump", "Pigmen melanin"], correct: 3, explanation: "Kornea transparan karena avaskular, arrangement kolagen teratur, dan pompa endotelial (deturgescence). Pigmen melanin justru menimbulkan warna dan opacity." },
+      { q: "Lens capsule adalah?", options: ["Lapisan epitel", "Basal lamina tebal", "Jaringan ikat", "Otot polos"], correct: 1, explanation: "Lens capsule adalah basal lamina tebal yang mengelilingi seluruh lensa, diproduksi oleh epitel lensa." },
+      { q: "Duktus nasolakrimalis bermuara di?", options: ["Orbita", "Kavum nasal (meatus inferior)", "Faring", "Konjungtiva"], correct: 1, explanation: "Duktus nasolakrimalis adalah kelanjutan sakus lakrimal yang bermuara di meatus inferior kavum nasal." }
+    ]
+  },
+  {
+    id: "exam-fisiologi",
+    title: "Ujian Fisiologi Sensorik",
+    description: "30 soal pilihan ganda • 60 menit • Penglihatan, pendengaran, penciuman, pengecapan",
+    questions: [
+      { q: "Pada keadaan gelap, fotoreseptor mengalami?", options: ["Hiperpolarisasi", "Depolarisasi", "Repolarisasi", "Aksi potensial"], correct: 1, explanation: "Pada gelap, cGMP tinggi → channel Na+ terbuka → depolarisasi (-30 mV). Cahaya menyebabkan hiperpolarisasi." },
+      { q: "Pigmen sel batang adalah?", options: ["Iodopsin", "Rhodopsin", "Kromoprotein", "Melanopsin"], correct: 1, explanation: "Rhodopsin (visual purple) adalah pigmen pada rods. Iodopsin adalah pigmen pada cones (merah, hijau, biru)." },
+      { q: "Akomodasi dekat melibatkan?", options: ["Relaksasi otot siliaris", "Kontraksi otot siliaris", "Relaksasi sfingter pupillae", "Kontraksi dilator pupillae"], correct: 1, explanation: "Kontraksi otot siliaris (parasimpatis) mengendurkan zonula fibers, membuat lensa lebih cembung untuk dekat." },
+      { q: "Glaukoma disebabkan oleh?", options: ["Penurunan produksi aqueous humor", "Peningkatan tekanan intraokular", "Degenerasi retina", "Katarak"], correct: 1, explanation: "Glaukoma adalah peningkatan tekanan intraokular akibat gangguan aliran aqueous humor di trabecular meshwork/kanal Schlemm." },
+      { q: "Katarak adalah?", options: ["Peningkatan tekanan bola mata", "Opasitas lensa", "Degenerasi kornea", "Peradangan retina"], correct: 1, explanation: "Katarak adalah opasitas lensa akibat denaturasi protein kristalin pada serat lensa, biasanya terkait usia." },
+      { q: "Basis koklea sensitif terhadap?", options: ["Frekuensi rendah", "Frekuensi tinggi", "Semua frekuensi", "Hanya 1000 Hz"], correct: 1, explanation: "Basis koklea (dekat jendela oval) memiliki basilar membrane yang sempit & kaku, resonansi frekuensi tinggi." },
+      { q: "Endolymph memiliki kandungan ion mirip?", options: ["Plasma", "Cairan intraseluler", "Perilymph", "Urine"], correct: 1, explanation: "Endolymph memiliki komposisi mirip cairan intraseluler (tinggi K+, rendah Na+). Perilymph mirip plasma (tinggi Na+, rendah K+)." },
+      { q: "Makula utrikulus mendeteksi?", options: ["Rotasi", "Linear horizontal", "Linear vertikal", "Getaran suara"], correct: 1, explanation: "Makula utrikulus mendeteksi percepatan linear horizontal. Sakulus untuk vertikal. Crista ampullaris untuk rotasi." },
+      { q: "Sel rambut vestibular memiliki?", options: ["Stereosilia saja", "Stereosilia + 1 kinosilium", "Kinosilium saja", "Flagella"], correct: 1, explanation: "Sel rambut vestibular memiliki banyak stereosilia dan 1 kinosilium. Sel rambut organ Corti hanya memiliki stereosilia." },
+      { q: "Rasa pahit diindikasikan oleh aktivasi?", options: ["cAMP", "IP3/Ca2+", "Channel Na+", "Channel K+"], correct: 1, explanation: "Rasa pahit diindikasikan oleh aktivasi PLC → IP3 → pelepasan Ca2+ intraseluler. Berfungsi sebagai deteksi toxin." },
+      { q: "N. VII (Facialis) membawa rasa dari?", options: ["Posterior 1/3 lidah", "Anterior 2/3 lidah", "Epiglotis", "Palatum"], correct: 1, explanation: "N. Facialis (CN VII) membawa informasi rasa dari anterior 2/3 lidah. N. Glossopharyngeal untuk posterior 1/3." },
+      { q: "Kuncup pengecap terdiri dari sel?", options: ["Hanya sel pengecap", "Sel pengecap & sel penunjang", "Hanya sel penunjang", "Neuron"], correct: 1, explanation: "Setiap taste bud terdiri dari sel pengecap (gustatory receptor cells) dan sel penunjang (supporting cells)." },
+      { q: "Papila foliata terdapat di?", options: ["Ujung lidah", "Sisi lateral lidah", "Pangkal lidah", "Palatum keras"], correct: 1, explanation: "Papila foliata terletak di sisi posterior lateral lidah. Papila fungiform tersebar di seluruh lidah. Circumvallate di pangkal." },
+      { q: "Transduksi mekanik di telinga dalam melibatkan?", options: ["Channel voltage-gated", "Channel mekanosensitif", "Channel ligand-gated", "Channel temperature-gated"], correct: 1, explanation: "Defleksi stereosilia membuka channel mekanosensitif (tip-link mechanism), memungkinkan masuknya K+ dan Ca2+." },
+      { q: "Potensial endokoklear adalah?", options: ["-40 mV", "0 mV", "+40 mV", "+80 mV"], correct: 3, explanation: "Potensial endokoklear adalah +80 mV (sangat positif), dihasilkan oleh stria vascularis, penting untuk transduksi sel rambut." },
+      { q: "Pada keadaan terang, fotoreseptor?", options: ["Melepaskan lebih banyak glutamat", "Melepaskan lebih sedikit glutamat", "Tetap sama", "Melepaskan GABA"], correct: 1, explanation: "Pada terang, fotoreseptor mengalami hiperpolarisasi → pelepasan glutamat berkurang. Glutamat biasanya inhibitor untuk bipolar OFF." },
+      { q: "Myopia (rabun jauh) disebabkan oleh?", options: ["Bola mata terlalu pendek", "Bola mata terlalu panjang", "Kornea terlalu datar", "Lensa terlalu tipis"], correct: 1, explanation: "Myopia disebabkan oleh axis bola mata yang terlalu panjang atau kelengkungan kornea/lensa berlebihan, sehingga fokus jatuh di depan retina." },
+      { q: "Hipermetropia (rabun dekat) disebabkan oleh?", options: ["Bola mata terlalu panjang", "Bola mata terlalu pendek", "Kornea terlalu cembung", "Lensa terlalu tebal"], correct: 1, explanation: "Hipermetropia disebabkan oleh axis bola mata terlalu pendek atau kelengkungan kornea/lensa tidak cukup, sehingga fokus jatuh di belakang retina." },
+      { q: "Presbiopia adalah?", options: ["Kehilangan elastisitas lensa", "Degenerasi retina", "Peningkatan tekanan intraokular", "Infeksi kornea"], correct: 0, explanation: "Presbiopia adalah kehilangan elastisitas lensa akibat penuaan, menyebabkan kesulitan akomodasi dekat." },
+      { q: "N. olfaktorius adalah saraf?", options: ["Murni motorik", "Murni sensorik", "Campuran", "Otonom"], correct: 1, explanation: "N. I (Olfaktorius) adalah saraf kranial murni sensorik untuk penciuman, berspesialisasi pada chemoresepsi." },
+      { q: "Area olfaktoria terletak di?", options: ["Konka inferior", "Atap rongga hidung", "Septum nasal", "Sinus maksilaris"], correct: 1, explanation: "Area olfaktoria (mukosa olfaktoria) terletak di atap rongga hidung, superior konka superior." },
+      { q: "Rasa asam diindikasikan oleh?", options: ["Ion H+ memblok channel K+", "Na+ masuk via channel amiloride", "cAMP meningkat", "IP3 meningkat"], correct: 0, explanation: "Rasa asam diindikasikan oleh ion H+ yang memblok channel K+ atau masuk melalui channel khusus, menyebabkan depolarisasi." },
+      { q: "Umami diindikasikan oleh?", options: ["Ion Na+", "Glutamat", "Ion Cl-", "Ion Ca2+"], correct: 1, explanation: "Umami (rasa savory) diindikasikan oleh glutamat yang mengaktivasi reseptor mGluR4 (metabotropik) atau reseptor ionotropik khusus." },
+      { q: "Jendela bulat (fenestra rotunda) berfungsi untuk?", options: ["Menerima getaran dari stapes", "Pelepasan tekanan perilymph", "Produksi endolymph", "Transmisi ke ossicles"], correct: 1, explanation: "Jendela bulat adalah membran yang memungkinkan pelepasan tekanan perilymph scala tympani ke telinga tengah." },
+      { q: "Helicotrema adalah?", options: ["Lubang antara scala vestibuli dan tympani", "Produksi endolymph", "Lokasi organ Corti", "Jendela oval"], correct: 0, explanation: "Helicotrema adalah lubang komunikasi di apex koklea yang menghubungkan scala vestibuli dan scala tympani." },
+      { q: "Tectorial membrane terbuat dari?", options: ["Kolagen tipe I", "Glikoprotein & kolagen", "Elastin", "Keratin"], correct: 1, explanation: "Tectorial membrane terdiri dari glycoprotein (otomodulin) dan kolagen, mengapung di atas organ Corti." },
+      { q: "Crista ampullaris terdapat di?", options: ["Utrikulus", "Sakulus", "Ampula kanalis semisirkularis", "Koklear duct"], correct: 2, explanation: "Crista ampullaris adalah reseptor sensorik yang terletak di ampula setiap kanalis semisirkularis untuk mendeteksi rotasi." },
+      { q: "Otoliths terbuat dari?", options: ["Kalsium karbonat", "Kalsium fosfat", "Natrium klorida", "Kolesterol"], correct: 0, explanation: "Otoliths (otoconia) adalah kristal kalsium karbonat (CaCO3) yang tertanam dalam membran gelatinosa otolitik di makula." }
+    ]
+  }
+];
+
+const flashcardsData = [
+  { id: "f1", category: "neuro", front: "Apa fungsi otak kecil (cerebellum)?", back: "Mengatur keseimbangan, koordinasi gerakan, dan postur tubuh." },
+  { id: "f2", category: "neuro", front: "Sebutkan 3 lapisan meninges!", back: "Dura mater, arachnoidea, dan pia mater." },
+  { id: "f3", category: "neuro", front: "Apa fungsi saraf vagus (N. X)?", back: "Mengatur organ visceral (jantung, paru, pencernaan) dari leher hingga abdomen." },
+  { id: "f4", category: "neuro", front: "Jalur sensorik untuk nyeri dan suhu?", back: "Jalur spinothalamik lateral." },
+  { id: "f5", category: "neuro", front: "Apa fungsi hipotalamus?", back: "Pengatur suhu, denyut jantung, tekanan darah, keseimbangan air, neurosekresi, dan asupan gizi." },
+  { id: "f6", category: "neuro", front: "Sel glial pembentuk mielin di SST?", back: "Sel Schwann. Di SSP adalah oligodendrosit." },
+  { id: "f7", category: "neuro", front: "Mnemonik innervasi otot ekstrinsik mata?", back: "SO4 (Superior oblique by CN IV), LR6 (Lateral rectus by CN VI), AO3 (All others by CN III)." },
+  { id: "f8", category: "neuro", front: "Apa perbedaan UMN dan LMN?", back: "UMN: spastisitas, hiperrefleksia, Babinski (+). LMN: flasiditas, atrofi, hiporefleksia, fibrilasi." },
+  { id: "f9", category: "neuro", front: "Neurotransmiter di neuromuscular junction?", back: "Asetilkolin (ACh) yang berikatan pada reseptor nikotinik." },
+  { id: "f10", category: "neuro", front: "Sistem saraf otonom thorakolumbar?", back: "Simpatis. Parasimpatis = kraniosakral." },
+  { id: "f11", category: "histologi", front: "Ciri khas jaringan epitel?", back: "Sel rapat, sedikit matriks interseluler, avaskular." },
+  { id: "f12", category: "histologi", front: "Sel utama jaringan ikat longgar?", back: "Fibroblas." },
+  { id: "f13", category: "histologi", front: "Otot dengan diskus interkalatus?", back: "Otot jantung." },
+  { id: "f14", category: "histologi", front: "Lapisan tengah dinding jantung?", back: "Miokard (otot jantung tebal)." },
+  { id: "f15", category: "histologi", front: "Pembuluh darah dengan dinding ter tipis?", back: "Kapiler (satu lapis endotelium)." },
+  { id: "f16", category: "histologi", front: "5 lapisan kornea?", back: "Epitel, Bowman layer, Stroma, Descemet membrane, Endotelium." },
+  { id: "f17", category: "histologi", front: "Struktur yang memproduksi aqueous humor?", back: "Proses siliaris (bagian badan siliaris)." },
+  { id: "f18", category: "histologi", front: "Area retina dengan akuitas tertinggi?", back: "Fovea centralis (hanya cones, avaskular)." },
+  { id: "f19", category: "histologi", front: "Kelenjar minyak di kelopak mata?", back: "Kelenjar Meibomian (tarsal glands) di tarsus." },
+  { id: "f20", category: "histologi", front: "Otot terkecil di tubuh?", back: "Stapedius (di telinga tengah, menempel pada stapes)." },
+  { id: "f21", category: "histologi", front: "Stria vascularis berfungsi?", back: "Memproduksi endolymph dan memelihara potensial endokoklear (+80 mV)." },
+  { id: "f22", category: "histologi", front: "Sel rambut organ Corti memiliki?", back: "Stereosilia (tanpa kinosilium)." },
+  { id: "f23", category: "fisiologi", front: "Pigmen sel batang?", back: "Rhodopsin (visual purple)." },
+  { id: "f24", category: "fisiologi", front: "Pigmen sel kerucut?", back: "Iodopsin (3 tipe: merah, hijau, biru)." },
+  { id: "f25", category: "fisiologi", front: "Mekanisme akomodasi dekat?", back: "Kontraksi otot siliaris → zonula kendur → lensa lebih cembung." },
+  { id: "f26", category: "fisiologi", front: "Gangguan visi malam?", back: "Rabun ayam (nyctalopia) akibat gangguan rods atau vitamin A." },
+  { id: "f27", category: "fisiologi", front: "Frekuensi tinggi dideteksi di?", back: "Basis koklea (basilar membrane sempit & kaku)." },
+  { id: "f28", category: "fisiologi", front: "Makula utrikulus mendeteksi?", back: "Percepatan linear horizontal." },
+  { id: "f29", category: "fisiologi", front: "Rasa pahit diindikasikan oleh?", back: "Aktivasi PLC → IP3 → Ca2+ intraseluler (deteksi toxin)." },
+  { id: "f30", category: "fisiologi", front: "N. VII membawa rasa dari?", back: "Anterior 2/3 lidah. N. IX untuk posterior 1/3." }
+];
+
+// ===================== STATE =====================
+function getDefaultState() {
+  return {
+    currentPage: "dashboard",
+    selectedMaterialId: null,
+    selectedQuizId: null,
+    selectedExamId: null,
+    streak: 5,
+    totalCorrect: 24,
+    materialsProgress: {},
+    quizScores: {},
+    examHistory: [],
+    notes: {},
+    focusTime: 150,
+    activities: [
+      {id:"a1", type:"material", description:"Neuroanatomi 1 — Selesai", time:"2 jam lalu"},
+      {id:"a2", type:"quiz", description:"Kuis SSP — 5/5 benar", time:"3 jam lalu"},
+      {id:"a3", type:"pomodoro", description:"Pomodoro — 45 menit", time:"5 jam lalu"},
+      {id:"a4", type:"flashcard", description:"Flashcard — 20 kartu", time:"Kemarin"}
+    ]
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem("medstudy-state-v2");
+    if (raw) return { ...getDefaultState(), ...JSON.parse(raw) };
+  } catch(e) {}
+  return getDefaultState();
+}
+
+let state = loadState();
+
+function saveState() {
+  localStorage.setItem("medstudy-state-v2", JSON.stringify(state));
+}
+
+// ===================== NAVIGATION =====================
+function navigate(page, params = {}) {
+  state.currentPage = page;
+  if (params.materialId) state.selectedMaterialId = params.materialId;
+  if (params.quizId) state.selectedQuizId = params.quizId;
+  if (params.examId) state.selectedExamId = params.examId;
+  saveState();
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function render() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + state.currentPage);
+  if (pageEl) pageEl.classList.add('active');
+
+  document.querySelectorAll('[id^="nav-"]').forEach(el => {
+    const page = el.id.replace('nav-', '');
+    const underline = el.querySelector('.nav-underline');
+    if (page === state.currentPage || (page === 'materials' && state.currentPage === 'material-detail') || (page === 'quiz' && state.currentPage === 'quiz-run') || (page === 'exam' && state.currentPage === 'exam-run')) {
+      el.classList.remove('text-text-dim');
+      el.classList.add('text-text');
+      if (underline) { underline.style.opacity = '1'; underline.classList.add('nav-glow'); }
+    } else {
+      el.classList.add('text-text-dim');
+      el.classList.remove('text-text');
+      if (underline) { underline.style.opacity = '0'; underline.classList.remove('nav-glow'); }
+    }
+  });
+
+  if (state.currentPage === 'dashboard') renderDashboard();
+  if (state.currentPage === 'materials') renderMaterials();
+  if (state.currentPage === 'material-detail') renderMaterialDetail();
+  if (state.currentPage === 'quiz') renderQuizList();
+  if (state.currentPage === 'quiz-run') renderQuizRun();
+  if (state.currentPage === 'quiz-result') renderQuizResult();
+  if (state.currentPage === 'exam') renderExamList();
+  if (state.currentPage === 'exam-run') renderExamRun();
+  if (state.currentPage === 'exam-result') renderExamResult();
+  if (state.currentPage === 'flashcards') renderFlashcards();
+  if (state.currentPage === 'settings') renderSettings();
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  document.getElementById('dash-streak').textContent = state.streak + ' hari';
+  document.getElementById('dash-correct').textContent = state.totalCorrect + ' soal';
+  document.getElementById('dash-focus').textContent = state.focusTime + ' menit';
+  const completed = Object.values(state.materialsProgress).filter(p => p >= 100).length;
+  document.getElementById('dash-progress').textContent = completed + '/' + materialsData.length;
+
+  const actContainer = document.getElementById('activity-list');
+  actContainer.innerHTML = state.activities.slice(0, 6).map(a => {
+    let icon = '';
+    if (a.type === 'material') icon = '<svg class="w-4 h-4 text-cyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+    else if (a.type === 'quiz') icon = '<svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>';
+    else if (a.type === 'pomodoro') icon = '<svg class="w-4 h-4 text-danger" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+    else icon = '<svg class="w-4 h-4 text-warning" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
+    return `<div class="flex items-center gap-3 p-3 rounded-lg bg-surface/50 border border-cyan/10">
+      <div class="w-8 h-8 rounded-lg bg-cyan/10 flex items-center justify-center shrink-0">${icon}</div>
+      <div class="flex-1 min-w-0"><div class="text-sm text-text truncate">${a.description}</div><div class="text-xs text-text-dim">${a.time}</div></div>
+    </div>`;
+  }).join('');
+
+  const progContainer = document.getElementById('progress-list');
+  progContainer.innerHTML = materialsData.map(m => {
+    const prog = state.materialsProgress[m.id] || 0;
+    return `<div>
+      <div class="flex justify-between text-xs mb-1"><span class="text-text">${m.title.split(' — ')[0]}</span><span class="text-text-dim">${prog}%</span></div>
+      <div class="w-full h-1.5 bg-surface rounded-full overflow-hidden"><div class="h-full progress-bar rounded-full transition-all" style="width:${prog}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== MATERIALS =====================
+function renderMaterials() {
+  const grid = document.getElementById('materials-grid');
+  grid.innerHTML = materialsData.map(m => {
+    const prog = state.materialsProgress[m.id] || 0;
+    const catColor = m.category === 'neuro' ? 'text-cyan' : m.category === 'histologi' ? 'text-success' : 'text-warning';
+    const catBg = m.category === 'neuro' ? 'bg-cyan/20' : m.category === 'histologi' ? 'bg-success/20' : 'bg-warning/20';
+    const catLabel = m.category === 'neuro' ? 'Neuroanatomi' : m.category === 'histologi' ? 'Histologi' : 'Fisiologi';
+    return `<div class="glass rounded-xl p-5 relative overflow-hidden shimmer cursor-pointer group" onclick="navigate('material-detail', {materialId:'${m.id}'})">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${catBg} ${catColor}">${catLabel}</span>
+      </div>
+      <h3 class="text-text font-semibold mb-1 group-hover:text-cyan transition-colors">${m.title}</h3>
+      <p class="text-text-dim text-sm mb-4 line-clamp-2">${m.description}</p>
+      <div class="flex items-center justify-between">
+        <div class="flex-1 mr-3"><div class="w-full h-1.5 bg-surface rounded-full overflow-hidden"><div class="h-full progress-bar rounded-full transition-all" style="width:${prog}%"></div></div></div>
+        <span class="text-xs text-text-dim">${prog}%</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMaterialDetail() {
+  const m = materialsData.find(x => x.id === state.selectedMaterialId);
+  if (!m) { navigate('materials'); return; }
+  const container = document.getElementById('material-content');
+  const catColor = m.category === 'neuro' ? 'text-cyan' : m.category === 'histologi' ? 'text-success' : 'text-warning';
+  const catBg = m.category === 'neuro' ? 'bg-cyan/20' : m.category === 'histologi' ? 'bg-success/20' : 'bg-warning/20';
+  const catLabel = m.category === 'neuro' ? 'Neuroanatomi' : m.category === 'histologi' ? 'Histologi' : 'Fisiologi';
+  container.innerHTML = `
+    <div class="glass rounded-xl p-6 md:p-8 mb-6">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${catBg} ${catColor}">${catLabel}</span>
+      </div>
+      <h1 class="font-display text-2xl md:text-3xl text-text mb-4">${m.title}</h1>
+      <div class="prose prose-invert max-w-none text-text-dim leading-relaxed">${m.content}</div>
+      <div class="mt-6 flex gap-3 flex-wrap">
+        <button onclick="markMaterialComplete('${m.id}')" class="btn-primary px-5 py-2 rounded-lg text-sm">Tandai Selesai</button>
+        <button onclick="navigate('quiz', {quizId:'${m.id}'})" class="px-5 py-2 rounded-lg border border-cyan/30 text-text hover:bg-cyan/10 transition-colors text-sm">Kerjakan Kuis</button>
+      </div>
+    </div>
+  `;
+  const note = state.notes[m.id] || '';
+  document.getElementById('note-textarea').value = note;
+}
+
+function markMaterialComplete(id) {
+  state.materialsProgress[id] = 100;
+  const m = materialsData.find(x => x.id === id);
+  addActivity('material', m.title.split(' — ')[0] + ' — Selesai');
+  saveState();
+  renderMaterialDetail();
+  renderDashboard();
+}
+
+function saveNote() {
+  const val = document.getElementById('note-textarea').value;
+  if (state.selectedMaterialId) {
+    state.notes[state.selectedMaterialId] = val;
+    saveState();
+    alert('Catatan disimpan!');
+  }
+}
+
+// ===================== QUIZ =====================
+let quizState = { questions: [], current: 0, correct: 0, answers: [], answered: [], quizId: null };
+
+function renderQuizList() {
+  const list = document.getElementById('quiz-list');
+  list.innerHTML = quizzesData.map(q => {
+    const score = state.quizScores[q.id];
+    const scoreText = score ? `<span class="text-success text-xs">${score.correct}/${score.total} benar</span>` : '<span class="text-text-dim text-xs">Belum dikerjakan</span>';
+    const catColor = q.category === 'neuro' ? 'text-cyan' : q.category === 'histologi' ? 'text-success' : 'text-warning';
+    const catBg = q.category === 'neuro' ? 'bg-cyan/20' : q.category === 'histologi' ? 'bg-success/20' : 'bg-warning/20';
+    const catLabel = q.category === 'neuro' ? 'Neuroanatomi' : q.category === 'histologi' ? 'Histologi' : 'Fisiologi';
+    return `<div class="glass rounded-xl p-5 cursor-pointer hover:border-cyan/50 transition-all" onclick="startQuiz('${q.id}')">
+      <div class="flex items-center justify-between mb-2">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium ${catBg} ${catColor}">${catLabel}</span>
+        ${scoreText}
+      </div>
+      <h3 class="text-text font-semibold mb-1">${q.title}</h3>
+      <p class="text-text-dim text-sm">${q.questions.length} soal pilihan ganda dengan penjelasan</p>
+    </div>`;
+  }).join('');
+}
+
+function startQuiz(id) {
+  const quiz = quizzesData.find(q => q.id === id);
+  if (!quiz) return;
+  quizState = { questions: quiz.questions, current: 0, correct: 0, answers: new Array(quiz.questions.length).fill(null), answered: new Array(quiz.questions.length).fill(false), quizId: id };
+  navigate('quiz-run');
+}
+
+function renderQuizRun() {
+  const q = quizState.questions[quizState.current];
+  const total = quizState.questions.length;
+  document.getElementById('quiz-current').textContent = quizState.current + 1;
+  document.getElementById('quiz-total').textContent = total;
+  document.getElementById('quiz-progress-bar').style.width = ((quizState.current / total) * 100) + '%';
+
+  const container = document.getElementById('quiz-question-container');
+  const explanationBox = document.getElementById('quiz-explanation');
+
+  // Build options
+  const isAnswered = quizState.answered[quizState.current];
+  const selectedIdx = quizState.answers[quizState.current];
+
+  let optionsHtml = q.options.map((opt, i) => {
+    let btnClass = 'option-btn w-full text-left p-4 rounded-lg bg-surface/50 text-text text-sm flex items-center gap-3';
+    if (isAnswered) {
+      if (i === q.correct) btnClass += ' correct';
+      else if (i === selectedIdx) btnClass += ' wrong';
+      else btnClass += ' disabled';
+      btnClass += ' disabled';
+    }
+    return `<button onclick="answerQuiz(${i})" class="${btnClass}" data-idx="${i}">
+      <span class="w-7 h-7 rounded-full bg-cyan/20 text-cyan flex items-center justify-center text-xs font-semibold shrink-0">${String.fromCharCode(65+i)}</span>
+      <span>${opt}</span>
+    </button>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="mb-6">
+      <h3 class="text-lg text-text font-medium leading-relaxed">${q.q}</h3>
+    </div>
+    <div class="space-y-3">${optionsHtml}</div>
+  `;
+
+  // Show explanation if answered
+  if (isAnswered) {
+    explanationBox.innerHTML = `<strong class="text-cyan">Penjelasan:</strong> ${q.explanation}`;
+    explanationBox.classList.remove('hidden');
+  } else {
+    explanationBox.classList.add('hidden');
+  }
+
+  updateQuizNavButtons();
+}
+
+function answerQuiz(idx) {
+  if (quizState.answered[quizState.current]) return; // already answered
+
+  const q = quizState.questions[quizState.current];
+  quizState.answers[quizState.current] = idx;
+  quizState.answered[quizState.current] = true;
+
+  if (idx === q.correct) quizState.correct++;
+
+  renderQuizRun(); // re-render to show correct/wrong styles and explanation
+}
+
+function updateQuizNavButtons() {
+  const prevBtn = document.getElementById('quiz-prev-btn');
+  const nextBtn = document.getElementById('quiz-next-btn');
+  const finishBtn = document.getElementById('quiz-finish-btn');
+
+  prevBtn.disabled = quizState.current === 0;
+  prevBtn.classList.toggle('opacity-50', quizState.current === 0);
+  prevBtn.classList.toggle('cursor-not-allowed', quizState.current === 0);
+
+  const isLast = quizState.current === quizState.questions.length - 1;
+  const isAnswered = quizState.answered[quizState.current];
+
+  if (isLast) {
+    nextBtn.classList.add('hidden');
+    finishBtn.classList.remove('hidden');
+    finishBtn.disabled = !isAnswered;
+    finishBtn.classList.toggle('opacity-50', !isAnswered);
+    finishBtn.classList.toggle('cursor-not-allowed', !isAnswered);
+  } else {
+    nextBtn.classList.remove('hidden');
+    finishBtn.classList.add('hidden');
+    nextBtn.disabled = !isAnswered;
+    nextBtn.classList.toggle('opacity-50', !isAnswered);
+    nextBtn.classList.toggle('cursor-not-allowed', !isAnswered);
+  }
+}
+
+function prevQuizQuestion() {
+  if (quizState.current > 0) {
+    quizState.current--;
+    renderQuizRun();
+  }
+}
+
+function nextQuizQuestion() {
+  if (quizState.current < quizState.questions.length - 1 && quizState.answered[quizState.current]) {
+    quizState.current++;
+    renderQuizRun();
+  }
+}
+
+function finishQuizEarly() {
+  finishQuiz();
+}
+
+function finishQuiz() {
+  const total = quizState.questions.length;
+  const correct = quizState.correct;
+  state.quizScores[quizState.quizId] = { correct, total };
+  state.totalCorrect += correct;
+  const quiz = quizzesData.find(q => q.id === quizState.quizId);
+  addActivity('quiz', quiz.title + ' — ' + correct + '/' + total + ' benar');
+  saveState();
+  navigate('quiz-result');
+}
+
+function renderQuizResult() {
+  const total = quizState.questions.length;
+  const correct = quizState.correct;
+  document.getElementById('result-score').textContent = correct + '/' + total;
+  document.getElementById('result-percentage').textContent = Math.round((correct/total)*100) + '% benar';
+}
+
+function retryQuiz() {
+  startQuiz(quizState.quizId);
+}
+
+// ===================== EXAM =====================
+let examState = { questions: [], current: 0, correct: 0, answers: [], answered: [], examId: null, startTime: 0, timerInterval: null, timeLeft: 3600 };
+
+function renderExamList() {
+  const list = document.getElementById('exam-list');
+  list.innerHTML = examsData.map(e => {
+    const history = state.examHistory.filter(h => h.examId === e.id);
+    const last = history[0];
+    const scoreText = last ? `<span class="text-success text-xs">Terakhir: ${last.correct}/${last.total}</span>` : '<span class="text-text-dim text-xs">Belum dikerjakan</span>';
+    return `<div class="glass rounded-xl p-5 cursor-pointer hover:border-cyan/50 transition-all" onclick="startExam('${e.id}')">
+      <div class="flex items-center justify-between mb-2">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-cyan/20 text-cyan">Ujian</span>
+        ${scoreText}
+      </div>
+      <h3 class="text-text font-semibold mb-1">${e.title}</h3>
+      <p class="text-text-dim text-sm">${e.description}</p>
+    </div>`;
+  }).join('');
+}
+
+function startExam(id) {
+  const exam = examsData.find(e => e.id === id);
+  if (!exam) return;
+  examState = { questions: exam.questions, current: 0, correct: 0, answers: new Array(exam.questions.length).fill(null), answered: new Array(exam.questions.length).fill(false), examId: id, startTime: Date.now(), timeLeft: 3600 };
+  navigate('exam-run');
+  startExamTimer();
+}
+
+function startExamTimer() {
+  if (examState.timerInterval) clearInterval(examState.timerInterval);
+  examState.timerInterval = setInterval(() => {
+    examState.timeLeft--;
+    const m = Math.floor(examState.timeLeft / 60);
+    const s = examState.timeLeft % 60;
+    const el = document.getElementById('exam-timer');
+    if (el) el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    if (examState.timeLeft <= 0) { clearInterval(examState.timerInterval); finishExam(); }
+  }, 1000);
+}
+
+function renderExamRun() {
+  const q = examState.questions[examState.current];
+  const total = examState.questions.length;
+  document.getElementById('exam-current').textContent = examState.current + 1;
+  document.getElementById('exam-total').textContent = total;
+  document.getElementById('exam-progress-bar').style.width = ((examState.current / total) * 100) + '%';
+
+  const container = document.getElementById('exam-question-container');
+  const explanationBox = document.getElementById('exam-explanation');
+
+  const isAnswered = examState.answered[examState.current];
+
+  let optionsHtml = q.options.map((opt, i) => {
+    let btnClass = 'option-btn w-full text-left p-4 rounded-lg bg-surface/50 text-text text-sm flex items-center gap-3';
+    if (isAnswered) {
+      if (i === q.correct) btnClass += ' correct';
+      else if (i === examState.answers[examState.current]) btnClass += ' wrong';
+      else btnClass += ' disabled';
+      btnClass += ' disabled';
+    }
+    return `<button onclick="answerExam(${i})" class="${btnClass}" data-idx="${i}">
+      <span class="w-7 h-7 rounded-full bg-cyan/20 text-cyan flex items-center justify-center text-xs font-semibold shrink-0">${String.fromCharCode(65+i)}</span>
+      <span>${opt}</span>
+    </button>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="mb-6">
+      <h3 class="text-lg text-text font-medium leading-relaxed">${q.q}</h3>
+    </div>
+    <div class="space-y-3">${optionsHtml}</div>
+  `;
+
+  if (isAnswered) {
+    explanationBox.innerHTML = `<strong class="text-cyan">Penjelasan:</strong> ${q.explanation}`;
+    explanationBox.classList.remove('hidden');
+  } else {
+    explanationBox.classList.add('hidden');
+  }
+
+  updateExamNavButtons();
+}
+
+function answerExam(idx) {
+  if (examState.answered[examState.current]) return;
+  const q = examState.questions[examState.current];
+  examState.answers[examState.current] = idx;
+  examState.answered[examState.current] = true;
+  if (idx === q.correct) examState.correct++;
+  renderExamRun();
+}
+
+function updateExamNavButtons() {
+  const prevBtn = document.getElementById('exam-prev-btn');
+  const nextBtn = document.getElementById('exam-next-btn');
+  const finishBtn = document.getElementById('exam-finish-btn');
+
+  prevBtn.disabled = examState.current === 0;
+  prevBtn.classList.toggle('opacity-50', examState.current === 0);
+  prevBtn.classList.toggle('cursor-not-allowed', examState.current === 0);
+
+  const isLast = examState.current === examState.questions.length - 1;
+  const isAnswered = examState.answered[examState.current];
+
+  if (isLast) {
+    nextBtn.classList.add('hidden');
+    finishBtn.classList.remove('hidden');
+    finishBtn.disabled = !isAnswered;
+    finishBtn.classList.toggle('opacity-50', !isAnswered);
+    finishBtn.classList.toggle('cursor-not-allowed', !isAnswered);
+  } else {
+    nextBtn.classList.remove('hidden');
+    finishBtn.classList.add('hidden');
+    nextBtn.disabled = !isAnswered;
+    nextBtn.classList.toggle('opacity-50', !isAnswered);
+    nextBtn.classList.toggle('cursor-not-allowed', !isAnswered);
+  }
+}
+
+function prevExamQuestion() {
+  if (examState.current > 0) {
+    examState.current--;
+    renderExamRun();
+  }
+}
+
+function nextExamQuestion() {
+  if (examState.current < examState.questions.length - 1 && examState.answered[examState.current]) {
+    examState.current++;
+    renderExamRun();
+  }
+}
+
+function finishExamEarly() {
+  finishExam();
+}
+
+function finishExam() {
+  if (examState.timerInterval) clearInterval(examState.timerInterval);
+  const total = examState.questions.length;
+  const correct = examState.correct;
+  const timeUsed = Math.floor((Date.now() - examState.startTime) / 60000);
+  state.examHistory.unshift({ examId: examState.examId, correct, total, time: timeUsed, date: new Date().toISOString() });
+  state.totalCorrect += correct;
+  addActivity('exam', 'Ujian — ' + correct + '/' + total + ' benar');
+  saveState();
+  navigate('exam-result');
+}
+
+function renderExamResult() {
+  const total = examState.questions.length;
+  const correct = examState.correct;
+  const timeUsed = Math.floor((Date.now() - examState.startTime) / 60000);
+  document.getElementById('exam-result-score').textContent = correct + '/' + total;
+  document.getElementById('exam-result-percentage').textContent = Math.round((correct/total)*100) + '% benar';
+  document.getElementById('exam-result-time').textContent = 'Waktu: ' + timeUsed + ' menit';
+}
+
+function retryExam() {
+  startExam(examState.examId);
+}
+
+// ===================== FLASHCARDS =====================
+function renderFlashcards(filter = 'all') {
+  const grid = document.getElementById('flashcards-grid');
+  const cards = filter === 'all' ? flashcardsData : flashcardsData.filter(f => f.category === filter);
+  grid.innerHTML = cards.map(f => `
+    <div class="flip-card h-48 cursor-pointer group" onclick="this.classList.toggle('flipped')">
+      <div class="flip-card-inner relative w-full h-full">
+        <div class="flip-card-front glass rounded-xl p-5 flex flex-col items-center justify-center text-center absolute inset-0">
+          <div class="text-xs text-cyan mb-2 uppercase tracking-wider">${f.category === 'neuro' ? 'Neuroanatomi' : f.category === 'histologi' ? 'Histologi' : 'Fisiologi'}</div>
+          <p class="text-text font-medium">${f.front}</p>
+          <div class="mt-3 text-[10px] text-text-dim">Klik untuk membalik</div>
+        </div>
+        <div class="flip-card-back glass rounded-xl p-5 flex flex-col items-center justify-center text-center absolute inset-0 border-cyan/40">
+          <div class="text-xs text-success mb-2 uppercase tracking-wider">Jawaban</div>
+          <p class="text-text">${f.back}</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterFlashcards(cat) {
+  renderFlashcards(cat);
+  const labels = { all: 'semua', neuro: 'neuroanatomi', histologi: 'histologi', fisiologi: 'fisiologi' };
+  document.querySelectorAll('#flashcard-filters button').forEach(b => {
+    const txt = b.textContent.trim().toLowerCase();
+    if (txt === labels[cat]) {
+      b.className = 'px-4 py-1.5 rounded-full text-sm border border-cyan/30 bg-cyan/20 text-text';
+    } else {
+      b.className = 'px-4 py-1.5 rounded-full text-sm border border-cyan/20 text-text-dim hover:bg-cyan/10 transition-colors';
+    }
+  });
+}
+
+// ===================== POMODORO =====================
+let pomodoroInterval = null;
+let pomodoroTime = 1500;
+let pomodoroRunning = false;
+
+function startPomodoro() {
+  navigate('dashboard');
+  setTimeout(() => {
+    const display = document.getElementById('pomodoro-display');
+    if (display) display.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function togglePomodoro() {
+  const btn = document.getElementById('pomodoro-btn');
+  if (pomodoroRunning) {
+    clearInterval(pomodoroInterval);
+    pomodoroRunning = false;
+    btn.textContent = 'Mulai';
+  } else {
+    pomodoroRunning = true;
+    btn.textContent = 'Jeda';
+    pomodoroInterval = setInterval(() => {
+      pomodoroTime--;
+      updatePomodoroDisplay();
+      if (pomodoroTime <= 0) {
+        clearInterval(pomodoroInterval);
+        pomodoroRunning = false;
+        btn.textContent = 'Mulai';
+        state.focusTime += 25;
+        addActivity('pomodoro', 'Pomodoro — 25 menit');
+        saveState();
+        alert('Sesi Pomodoro selesai!');
+        resetPomodoro();
+      }
+    }, 1000);
+  }
+}
+
+function resetPomodoro() {
+  clearInterval(pomodoroInterval);
+  pomodoroRunning = false;
+  pomodoroTime = 1500;
+  updatePomodoroDisplay();
+  const btn = document.getElementById('pomodoro-btn');
+  if (btn) btn.textContent = 'Mulai';
+}
+
+function updatePomodoroDisplay() {
+  const m = Math.floor(pomodoroTime / 60);
+  const s = pomodoroTime % 60;
+  const el = document.getElementById('pomodoro-display');
+  if (el) el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+// ===================== SETTINGS & UTILS =====================
+function renderSettings() {
+  document.getElementById('settings-flashcount').textContent = flashcardsData.length;
+}
+
+function resetData() {
+  if (confirm('Yakin ingin menghapus semua data? Tindakan ini tidak bisa dibatalkan.')) {
+    localStorage.removeItem('medstudy-state-v2');
+    state = getDefaultState();
+    saveState();
+    render();
+    alert('Data berhasil direset.');
+  }
+}
+
+function addActivity(type, description) {
+  const times = ['Baru saja', '1 menit lalu', '2 menit lalu', '5 menit lalu'];
+  const time = times[Math.floor(Math.random() * times.length)];
+  state.activities.unshift({ id: 'a' + Date.now(), type, description, time });
+  if (state.activities.length > 20) state.activities.pop();
+  saveState();
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+  render();
+});
+</script>
+</body>
+</html>
